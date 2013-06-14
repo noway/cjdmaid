@@ -24,20 +24,18 @@
                                             ''
 ## Installing
 
-Not working yet.
-
 Get node.js:
 
     sudo apt-get install nodejs
 
 Install with npm: (Not avalaible yet)
 
-    sudo npm -g <future module name>
+    sudo npm -g cjdmaid
 
 Install from source:
 
-    git clone https://github.com/noway421/path-to-repo.git
-    cd path-to-repo
+    git clone https://github.com/noway421/cjdmaid.git
+    cd cjdmaid
     npm install
     sudo npm link
 

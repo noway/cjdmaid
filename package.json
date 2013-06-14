@@ -1,8 +1,8 @@
 {
 	"name": "cjdmaid",
 	"version": "0.0.1",
-	"author": "noway <noway@2ch.hk>",
-	"description": "Nice config loader for cjdns",
+	"author": "noway421 <noway@2ch.hk>",
+	"description": "Cjdns peers manager",
 	"scripts": {
 		"install": "node install.js"
 	},
@@ -40,6 +40,7 @@
 	"engines": {
 		"node": "~0.10"
 	},
+
 	"preferGlobal": true,
 	"os": [ "linux" ]
 }
