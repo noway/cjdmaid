@@ -70,7 +70,6 @@ writeToFile(
 	child.on("exit", function (/* code, signal */) {
 		console.log("User close editor!");
 		console.log("Now installed");
-		process.exit(0);
 	});
 });
 
