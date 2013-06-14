@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
+var program = require("commander");
+var exec = require("child_process").exec;
+
+var config = require(__dirname + "/../lib/config");
+
+
+program.on("--help", function(){
+	console.log("  Examples:");
+	console.log("");
+	console.log("    $ cjdmaid-start");
+	console.log("");
+});
+
+program.parse(process.argv);
+
+function mergeArrays (arr1, arr2) {
+	for (var i = 0; i < arr2.length; i++) {
+		if (i < arr1.length) {
+			mergeRecursive(arr1[i], arr2[i]);
+		}
+		else {
+			arr1[i] = arr2[i];
+		}
+	}
+	return arr1;
+}
+function mergeRecursive(obj1, obj2) {
+	for (var p in obj2) {
+		if (obj2.hasOwnProperty(p)) {
+			try {
+				// Property in destination object set; update its value.
+				if (obj2[p].constructor === Object) {
+					obj1[p] = mergeRecursive(obj1[p], obj2[p]);
+				}
+				else if (obj2[p].constructor === Array) {
+					mergeArrays(obj1[p], obj2[p]);
+				}
+				else {
+					obj1[p] = obj2[p];
+				}
+			}
+			catch (e) {
+				// Property in destination object not set
+				// Create it and set its value.
+				obj1[p] = obj2[p];
+			}
+		}
+	}
+
+	return obj1;
+}
+
+config.readSeveralConfs("cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf")
+.then(function (docs) {
+	var cjdmaidConfJson = docs[0];
+	var cjdrouteConfJson = docs[1];
+	var cjdrouteNodesConfJson = docs[2];
+
+	var resultJson = mergeRecursive(cjdrouteConfJson,
+		cjdrouteNodesConfJson);
+
+	config.writeCustomConf("cjdrouteTempConf", resultJson)
+	.then(function () {
+		console.log("Temporary file created");
+		exec(
+			"nohup " +
+			cjdmaidConfJson.cjdrouteBinary +
+			" < " +
+			cjdmaidConfJson.cjdrouteTempConf,
+
+			function (error, stdout, stderr) {
+				console.log("stdout: " + stdout);
+				console.log("stderr: " + stderr);
+				if (error !== null) {
+					console.log("exec error: " + error);
+				}
+			}
+		);
+	});
+});

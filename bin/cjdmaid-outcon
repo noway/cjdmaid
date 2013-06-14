@@ -1,0 +1,218 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
+var program = require("commander");
+//var when = require("when");
+
+var util = require(__dirname + "/../lib/util");
+var config = require(__dirname + "/../lib/config");
+var commfn = require(__dirname + "/../lib/commander/function");
+
+var addingData = {};
+var addingKeys = [
+	"publicKey"
+];
+
+program
+	.option("-c, --configpath <path>", "Config json path where write data",
+		util.configpath, ["router", "ipTunnel", "outgoingConnections"])
+	.option("-f, --force", "Immediately continue")
+	.option("-P, --publicKey <text>", "Node publicKey");
+
+program.on("--help", function () {
+	console.log("  Examples:");
+	console.log("");
+	console.log("    $ cjdmaid-outcon");
+	console.log("    $ cjdmaid-outcon " +
+		"--configpath router.ipTunnel.outgoingConnections");
+	console.log("    $ cjdmaid-outcon " +
+		"--publicKey QmdsfOThiIsExampleSfmOIgnSGnxNs");
+	console.log("");
+});
+
+
+program.parse(process.argv);
+
+
+function addDataField (key, value) {
+	if (!util.isDef(value)) {
+		return;
+	}
+
+	if (addingKeys.indexOf(key) !== -1){
+		addingData[key] = value;
+	} else {
+		addingKeys.push(key);
+		addingData[key] = value;
+	}
+}
+
+addDataField("publicKey", program.publicKey);
+
+
+util.isConfigPathPossible(program.configpath, "array")
+.then(function (ok) {
+	if (!ok) {
+		util.panic("Impossible --configpath");
+	}
+	//return promptMissingFields("publicKey");
+
+
+	var neededData = {};
+	for (var i = 0; i < addingKeys.length; i++) {
+		if (!util.isDef(addingData[addingKeys[i]])) {
+			neededData[addingKeys[i]] = addingKeys[i] + ": ";
+		}
+	}
+
+	return commfn.call(program.prompt, program, neededData);
+
+}).then(function (data) {
+	for (var i in data) {
+		if (data.hasOwnProperty(i)) {
+			addDataField(i, data[i]);
+		}
+	}
+
+	if (program.force) {
+		saveAddingDataToConfig();
+	} else {
+		showAddingData();
+	}
+});
+
+function changeField(field) {
+	return commfn.call(program.prompt, program, field + ": ")
+		.then(function (data) {
+			addingData[field] = data;
+		});
+}
+
+function showAddingData () {
+	console.log("");
+
+	for (var i = 0; i < addingKeys.length; i++) {
+		console.log("[" + (i + 1) + "] Edit " +
+			"\"" + addingKeys[i]+  "\" (" + addingData[addingKeys[i]] + ")");
+	}
+
+	console.log("");
+
+	console.log("[y] Continue");
+	console.log("[n] Cancel");
+
+	console.log("");
+	program.prompt(
+		"What you want to do [y]?: ",
+		function askAddingDataLine(data) {
+			data = data.toLowerCase();
+
+			if (data === "" || data === "y") {
+				saveAddingDataToConfig();
+				return;
+			}
+			else if (data === "n") {
+				console.log("exiting...");
+				return process.stdin.destroy();
+			}
+
+			var index = parseInt(data, 10) - 1;
+			if (data === "" || index < 0 || index > addingKeys.length) {
+				console.log("No such option");
+				return program.prompt(
+					"What you want to do [y]?: ",
+					askAddingDataLine
+				);
+			}
+
+			changeField(addingKeys[index])
+			.then(function () {
+				showAddingData();
+			});
+		}
+	);
+}
+
+function saveAddingDataToConfig () {
+	config.readCustomConf("cjdrouteNodesConf")
+	.then(function (doc) {
+		/*if (err) {
+			return util.panic(err);
+		}
+
+		data = util.stripComments(data);
+
+		try {
+			var doc = JSON.parse(data);
+		} catch(err) {
+			return util.panic(err);
+		}*/
+
+		var pushObject = addingData.publicKey;
+		var docIter = doc; // pointer
+
+		// creating missing objects
+		for (var i = 0; i < program.configpath.length; i++) {
+			if (!util.isDef(docIter[program.configpath[i]])) {
+				if (i + 1 >= program.configpath.length){
+					// last node must be array
+					docIter[program.configpath[i]] = [];
+				}
+				else if(util.isInt(program.configpath[i + 1])) {
+					// array
+					docIter[program.configpath[i]] = [];
+				}
+				else {
+					// object
+					docIter[program.configpath[i]] = {};
+				}
+			} else {
+				if (i + 1 >= program.configpath.length){
+					if(!util.isArray(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+				else if(util.isInt(program.configpath[i + 1])) {
+					if(!util.isArray(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+				else {
+					if(!util.isObject(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+			}
+			docIter = docIter[program.configpath[i]];
+		}
+
+
+		docIter.push(pushObject);
+
+
+		config.writeCustomConf("cjdrouteNodesConf", doc)
+		.then(function () {
+			console.log("Connection saved!");
+
+			return process.stdin.destroy();
+		});
+	});
+}

@@ -1,0 +1,45 @@
+{
+	"name": "cjdmaid",
+	"version": "0.0.1",
+	"author": "noway <noway@2ch.hk>",
+	"description": "Nice config loader for cjdns",
+	"scripts": {
+		"hahainstall": "node install.js"
+	},
+	"bin" : {
+		"cjdmaid": "./bin/cjdmaid",
+		"cjdmaid-addpass": "./bin/cjdmaid-addpass" ,
+		"cjdmaid-addpeer": "./bin/cjdmaid-addpeer" ,
+		"cjdmaid-allowcon": "./bin/cjdmaid-allowcon" ,
+		"cjdmaid-outcon": "./bin/cjdmaid-outcon" ,
+		"cjdmaid-start": "./bin/cjdmaid-start"
+	},
+
+	"config": {
+		"production": true
+	},
+
+	"dependencies": {
+		"commander": "~1.1.1",
+		"when": "~2.1.0"
+	},
+
+	"bundledDependencies": [
+		"commander",
+		"when"
+	],
+
+	"devDependencies": {
+		"grunt": "0.4.x",
+		"grunt-contrib-uglify": "0.2.x",
+		"grunt-contrib-jshint": "0.4.x",
+		"grunt-contrib-nodeunit": "0.1.x",
+		"grunt-simple-mocha": "0.4.x"
+	},
+
+	"engines": {
+		"node": "~0.10"
+	},
+	"preferGlobal": true,
+	"os": [ "linux" ]
+}

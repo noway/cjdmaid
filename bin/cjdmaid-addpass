@@ -1,0 +1,285 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
+var program = require("commander");
+var when = require("when");
+
+var util = require(__dirname + "/../lib/util");
+var config = require(__dirname + "/../lib/config");
+var commfn = require(__dirname + "/../lib/commander/function");
+
+var addingData = {};
+var addingKeys = [
+	"password",
+	"name",
+	"email",
+	"location",
+	"ipv6",
+	"ipv4"
+];
+
+program
+	.option("-f, --force", "Immediately continue")
+	.option("-p, --passwd <text>", "Node password")
+	.option("-n, --name <text>", "Node author's name")
+	.option("-e, --email <email>", "Node author's email")
+	.option("-l, --location <text>", "Node location")
+	.option("-4, --ipv4 <ip>", "Node ipv4")
+	.option("-6, --ipv6 <ip>", "Node ipv6");
+
+program.on("--help", function(){
+	console.log("  Examples:");
+	console.log("");
+	console.log("    $ cjdmaid-addpass");
+	console.log("    $ cjdmaid-addpass --email someone@domain.org");
+	console.log("    $ cjdmaid-addpass " +
+		"-n someone -e someone@domain.org -l 'Russia, Moscow'");
+	console.log("    $ cjdmaid-addpass " +
+		"--password SfmsdfJQdfJDFnqExamplEnASFnfdisQm");
+	console.log("");
+});
+
+program.parse(process.argv);
+
+function addDataField (key, value) {
+	if (!util.isDef(value)) {
+		return;
+	}
+
+	if (addingKeys.indexOf(key) !== -1){
+		addingData[key] = value;
+	} else {
+		addingKeys.push(key);
+		addingData[key] = value;
+	}
+}
+
+addDataField("password", program.passwd);
+addDataField("name", program.name);
+addDataField("email", program.email);
+addDataField("location", program.location);
+addDataField("ipv4", program.ipv4);
+addDataField("ipv6", program.ipv6);
+
+util.generatePassword(48)
+.then(function (password) {
+	if (!util.isDef(addingData.password)) {
+		addDataField("password", password);
+	}
+
+	var neededData = {};
+	for (var i = 0; i < addingKeys.length; i++) {
+		if (!util.isDef(addingData[addingKeys[i]])) {
+			neededData[addingKeys[i]] = addingKeys[i] + ": ";
+		}
+	}
+
+	return commfn.call(program.prompt, program, neededData);
+
+}).then(function (data) {
+	for (var i in data) {
+		if (data.hasOwnProperty(i)) {
+			addDataField(i, data[i]);
+		}
+	}
+
+	if (program.force) {
+		saveAddingDataToConfig();
+	} else {
+		showAddingData();
+	}
+});
+
+function changeField(field) {
+	return commfn.call(program.prompt, program, field + ": ")
+		.then(function (data) {
+			addingData[field] = data;
+		});
+}
+
+function addField(field) {
+	if (util.isDef(field)) {
+		addingKeys.push(field);
+
+		return commfn.call(program.prompt, program, field + ": ")
+			.then(function (data) {
+				addingData[addingKeys[addingKeys.length - 1]] = data;
+			});
+	} else {
+		return commfn.call(program.prompt, program, "Field name: ")
+			.then(function (data) {
+				if (!data.length) {
+					return when.reject();
+				}
+				addingKeys.push(data);
+				return commfn.call(program.prompt, program, data + ": ");
+			}).then(function (data) {
+				addingData[addingKeys[addingKeys.length - 1]] = data;
+			});
+	}
+}
+
+function removeField() {
+	var deferred = when.defer();
+
+	console.log("");
+	for (var i = 0; i < addingKeys.length; i++) {
+		console.log("[" + (i + 1) + "] Remove " +
+			"\"" + addingKeys[i] + "\" (" + addingData[addingKeys[i]] + ")");
+	}
+
+	console.log("");
+	console.log("[n] Cancel");
+	console.log("");
+
+	program.prompt(
+		"What you want remove [n]?: ",
+		function askRemovingDataLine(data) {
+			data = data.toLowerCase();
+			if (data === "" || data === "n") {
+				deferred.resolve();
+				return;
+			}
+			var index = parseInt(data, 10) - 1;
+			if (index < 0 || index > addingKeys.length) {
+				console.log("No such option");
+				return program.prompt(
+					"What you want remove [n]?: ",
+					askRemovingDataLine
+				);
+			}
+			delete addingData[addingKeys[index]];
+			addingKeys.splice(index, 1);
+			deferred.resolve();
+		}
+	);
+	return deferred.promise;
+}
+
+
+
+function showAddingData () {
+	console.log("");
+
+	for (var i = 0; i < addingKeys.length; i++) {
+		console.log("[" + (i + 1) + "] Edit " +
+			"\"" + addingKeys[i]+  "\" (" + addingData[addingKeys[i]] + ")");
+	}
+
+	console.log("");
+
+	console.log("[a] Add new field");
+	console.log("[r] Remove field");
+	console.log("[y] Continue");
+	console.log("[n] Cancel");
+
+	console.log("");
+
+	program.prompt(
+		"What you want to do [y]?: ",
+		function askAddingDataLine(data) {
+			data = data.toLowerCase();
+			if (data === "a") {
+				addField()
+				.then(function () {
+					showAddingData();
+				});
+				return;
+			}
+			else if (data === "r") {
+				removeField()
+				.then(function () {
+					showAddingData();
+				});
+				return;
+			}
+			else if (data === "" || data === "y") {
+				saveAddingDataToConfig();
+				return;
+			}
+			else if (data === "n") {
+				console.log("exiting...");
+				return process.stdin.destroy();
+			}
+
+			var index = parseInt(data, 10) - 1;
+			if (index < 0 || index > addingKeys.length) {
+				console.log("No such option");
+				return program.prompt(
+					"What you want to do [y]?: ",
+					askAddingDataLine
+				);
+			}
+
+			changeField(addingKeys[index])
+			.then(function () {
+				showAddingData();
+			});
+		}
+	);
+}
+
+function saveAddingDataToConfig() {
+	config.readCustomConf("cjdrouteNodesConf")
+	.then(function (doc) {
+		if (!util.isDef(doc.authorizedPasswords)) {
+			doc.authorizedPasswords = [];
+		}
+		var pushObject = util.cloneObject(addingData);
+
+		doc.authorizedPasswords.push(pushObject);
+
+		config.writeCustomConf("cjdrouteNodesConf",	doc)
+		.then(function () {
+			console.log("Pass saved!");
+
+			showTransferData(pushObject.password);
+		});
+	});
+}
+
+function showTransferData (addedPassword) {
+	console.log("");
+	console.log("Here's data that you need send to your friend: ");
+
+	config.readSeveralConfs("cjdmaidConf", "cjdrouteConf")
+	.then(function (docs) {
+		var cjdmaidConfJson = docs[0];
+		var cjdrouteConfJson = docs[1];
+
+		var resultObject = {};
+		resultObject[cjdmaidConfJson.address] = {
+			"password": addedPassword,
+			"publicKey": cjdrouteConfJson.publicKey,
+			"ipv6": cjdrouteConfJson.ipv6,
+			"name": cjdmaidConfJson.name,
+			"email": cjdmaidConfJson.email,
+			"location": cjdmaidConfJson.location
+		};
+		var resultJson = JSON.stringify(resultObject, null, 4);
+		resultJson = resultJson.replace(/^\s{4}/mg, "");
+		resultJson = resultJson.substring(1, resultJson.length);
+		resultJson = resultJson.substring(0, resultJson.length - 1);
+
+		console.log(resultJson);
+		return process.stdin.destroy();
+	});
+}

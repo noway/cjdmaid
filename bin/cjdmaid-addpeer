@@ -1,0 +1,355 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
+var program = require("commander");
+var when = require("when");
+
+var util = require(__dirname + "/../lib/util");
+var config = require(__dirname + "/../lib/config");
+var commfn = require(__dirname + "/../lib/commander/function");
+
+
+var addingData = {};
+var addingKeys = [
+	"address",
+	"password",
+	"publicKey",
+	"ipv6",
+	"name",
+	"email",
+	"location"
+];
+
+program
+	.option("-c, --configpath <path>", "Config json path where write data",
+		util.configpath, ["interfaces", "UDPInterface", 0, "connectTo"])
+	.option("-f, --force", "Immediately continue")
+	.option("-r, --rewrite", "Force peer rewrite")
+	.option("-a, --address <ip:port>", "Node address")
+	.option("-p, --passwd <text>", "Node password")
+	.option("-P, --publicKey <text>", "Node publicKey")
+	.option("-6, --ipv6 <ip>", "Node ipv6")
+	.option("-n, --name <text>", "Node author's name")
+	.option("-e, --email <email>", "Node author's email")
+	.option("-l, --location <text>", "Node location");
+
+program.on("--help", function(){
+	console.log("  Examples:");
+	console.log("");
+	console.log("    $ cjdmaid-addpeer");
+	console.log("    $ cjdmaid-addpeer --email someone@domain.org");
+	console.log("    $ cjdmaid-addpeer " +
+		"--configpath interfaces.UDPInterface[0].connectTo");
+	console.log("    $ cjdmaid-addpeer " +
+		"--password SfmsdfJQdfJDFnqExamplEnASFnfdisQm");
+	console.log("");
+});
+
+program.parse(process.argv);
+
+
+function addDataField (key, value) {
+	if (!util.isDef(value)) {
+		return;
+	}
+
+	if (addingKeys.indexOf(key) !== -1){
+		addingData[key] = value;
+	} else {
+		addingKeys.push(key);
+		addingData[key] = value;
+	}
+}
+
+addDataField("address", program.address);
+addDataField("password", program.passwd);
+addDataField("publicKey", program.publicKey);
+addDataField("ipv6", program.ipv6);
+addDataField("name", program.name);
+addDataField("email", program.email);
+addDataField("location", program.location);
+
+
+util.isConfigPathPossible(program.configpath, "object")
+.then(function (ok) {
+	if (!ok) {
+		return util.panic("Impossible --configpath");
+	}
+})
+.yield(
+	commfn.call(program.prompt, program, "Paste json data (new line on end):")
+)
+.then(function (data) {
+	// fix some common errors
+
+	var trimData = data.trim();
+	var stripComma = trimData.replace(/,$/, "");
+	var fixCommas = stripComma.replace(/("|')$/mg, "$1,");
+	var lastComma = fixCommas.replace(/("|')(.*?)("|'),\s*}/, "$1$2$3}");
+	var addBrackets = "{" + lastComma + "}";
+	var peerJson = {};
+
+	try {
+		peerJson = JSON.parse(addBrackets);
+	} catch (e) {
+		return util.panic("Error while parsing json. Check it for errors.");
+	}
+
+	var address = Object.keys(peerJson)[0];
+	if (util.isDef(address)) {
+		for(var key in peerJson[address]) {
+			if (peerJson[address].hasOwnProperty(key)) {
+				addDataField(key, peerJson[address][key]);
+			}
+		}
+		addDataField("address", address);
+	}
+
+	var neededData = {};
+	for (var i = 0; i < addingKeys.length; i++) {
+		if (!util.isDef(addingData[addingKeys[i]])) {
+			neededData[addingKeys[i]] = addingKeys[i] + ": ";
+		}
+	}
+
+	return commfn.call(program.prompt, program, neededData);
+
+})
+.then(function (data) {
+	for (var i in data) {
+		if (data.hasOwnProperty(i)) {
+			addDataField(i, data[i]);
+		}
+	}
+
+	if (program.force) {
+		saveAddingDataToConfig();
+	} else {
+		showAddingData();
+	}
+});
+
+function changeField(field) {
+	return commfn.call(program.prompt, program, field + ": ")
+		.then(function (data) {
+			addingData[field] = data;
+		});
+}
+
+function addField(field) {
+	if (util.isDef(field)) {
+		addingKeys.push(field);
+
+		return commfn.call(program.prompt, program, field + ": ")
+			.then(function (data) {
+				addingData[addingKeys[addingKeys.length - 1]] = data;
+			});
+	} else {
+		return commfn.call(program.prompt, program, "Field name: ")
+			.then(function (data) {
+				if (!data.length) {
+					return when.reject();
+				}
+				addingKeys.push(data);
+				return commfn.call(program.prompt, program, data + ": ");
+			}).then(function (data) {
+				addingData[addingKeys[addingKeys.length - 1]] = data;
+			});
+	}
+}
+
+function removeField() {
+	var deferred = when.defer();
+
+	console.log("");
+	for (var i = 0; i < addingKeys.length; i++) {
+		console.log("[" + (i + 1) + "] Remove " +
+			"\"" + addingKeys[i] + "\" (" + addingData[addingKeys[i]] + ")");
+	}
+
+	console.log("");
+	console.log("[n] Cancel");
+	console.log("");
+
+	program.prompt(
+		"What you want remove [n]?: ",
+		function askRemovingDataLine(data) {
+			data = data.toLowerCase();
+			if (data === "" || data === "n") {
+				deferred.resolve();
+				return;
+			}
+			var index = parseInt(data, 10) - 1;
+			if (index < 0 || index > addingKeys.length) {
+				console.log("No such option");
+				return program.prompt(
+					"What you want remove [n]?: ",
+					askRemovingDataLine
+				);
+			}
+			delete addingData[addingKeys[index]];
+			addingKeys.splice(index, 1);
+			deferred.resolve();
+		}
+	);
+	return deferred.promise;
+}
+
+
+function showAddingData () {
+	console.log("");
+
+	for (var i = 0; i < addingKeys.length; i++) {
+		console.log("[" + (i + 1) + "] Edit " +
+			"\"" + addingKeys[i]+  "\" (" + addingData[addingKeys[i]] + ")");
+	}
+
+	console.log("");
+
+	console.log("[a] Add new field");
+	console.log("[r] Remove field");
+	console.log("[y] Continue");
+	console.log("[n] Cancel");
+
+	console.log("");
+
+	program.prompt(
+		"What you want to do [y]?: ",
+		function askAddingDataLine(data) {
+			data = data.toLowerCase();
+			if (data === "a") {
+				addField()
+				.then(function () {
+					showAddingData();
+				});
+				return;
+			}
+			else if (data === "r") {
+				removeField()
+				.then(function () {
+					showAddingData();
+				});
+				return;
+			}
+			else if (data === "" || data === "y") {
+				saveAddingDataToConfig();
+				return;
+			}
+			else if (data === "n") {
+				console.log("exiting...");
+				return process.stdin.destroy();
+			}
+
+			var index = parseInt(data, 10) - 1;
+			if (index < 0 || index > addingKeys.length) {
+				console.log("No such option");
+				return program.prompt(
+					"What you want to do [y]?: ",
+					askAddingDataLine
+				);
+			}
+
+			changeField(addingKeys[index])
+			.then(function () {
+				showAddingData();
+			});
+		}
+	);
+}
+
+
+function saveAddingDataToConfig () {
+	config.readCustomConf("cjdrouteNodesConf")
+	.then(function (doc) {
+
+		var pushObject = util.cloneObject(addingData);
+		delete pushObject.address;
+
+		var docIter = doc; // pointer
+
+		// creating missing objects
+		for (var i = 0; i < program.configpath.length; i++) {
+			if (!util.isDef(docIter[program.configpath[i]])) {
+				if (i + 1 >= program.configpath.length) {
+					// last node must be object
+					docIter[program.configpath[i]] = {};
+				}
+				else if(util.isInt(program.configpath[i + 1])) {
+					// array
+					docIter[program.configpath[i]] = [];
+				}
+				else {
+					// object
+					docIter[program.configpath[i]] = {};
+				}
+			} else {
+				if (i + 1 >= program.configpath.length) {
+					if(!util.isObject(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+				else if (util.isInt(program.configpath[i + 1])) {
+					if(!util.isArray(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+				else {
+					if(!util.isObject(docIter[program.configpath[i]])) {
+						util.panic("Impossible --configpath");
+					}
+				}
+			}
+			docIter = docIter[program.configpath[i]];
+		}
+
+		var isPeerDefined = util.isDef(docIter[addingData.address]);
+		docIter[addingData.address] = pushObject;
+
+		if (!isPeerDefined) {
+			return writeNodesToFile(doc);
+		}
+		if (program.rewrite){
+			console.log("Peer with that address exists. Rewriting.");
+			return writeNodesToFile(doc);
+		}
+
+		return commfn.call(
+				program.confirm,
+				program,
+				"Peer with that address exists. Continue? "
+			)
+			.then(function (ok) {
+				if (ok) {
+					return writeNodesToFile(doc);
+				}
+				console.log("exiting...");
+				process.stdin.destroy(); // few. finaly.
+			});
+	});
+}
+
+function writeNodesToFile (doc) {
+	config.writeCustomConf("cjdrouteNodesConf", doc)
+	.then(function () {
+		console.log("Saved.");
+		process.stdin.destroy();
+	});
+}

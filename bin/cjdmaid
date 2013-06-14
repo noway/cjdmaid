@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ТуДу:
+	+ доделать аргументы.
+	+ pass_data, pass_keys и peer_data, peer_keys назвать одинакого
+	+ сделать функцию для добавления полей программно
+	+ лаудер
+	+ инсталятор
+	+ добавить --force
+	- доделать install.js
+	- доделать cjdmaid-start
+	- выделить addingData в отдельный класс (рефакторинг)
+	- в install.js не падать при невозможности записи
+*/
+
+
+var program = require("commander");
+var nodefn = require("when/node/function");
+var when = require("when");
+var path = require("path");
+var fs = require("fs");
+
+/*
+nodefn.call(fs.readFile, path.normalize(__dirname + "/../maid.txt"), 'utf-8')
+.then(function (data) {
+	console.log(data);
+});
+*/
+
+program
+	.version("0.0.1")
+	.command("addpass", "Add authorized password to config.")
+	.command("addpeer", "Add peer to your config.")
+	.command("outcon", "Add connection to outgoingConnections in config.")
+	.command("allowcon", "Add connection to allowedConnections in config.")
+	.command("start", "Start cjdns with saved peers.");
+
+var ascii = fs.readFileSync(__dirname + "/../maid.txt", 'utf-8');
+process.stdout.write(ascii);
+
+/*
+program.on("--help", function(){
+});
+*/
+
+
+program.parse(process.argv);

@@ -1,0 +1,32 @@
+{
+  "node": true,
+  "es5": true,
+
+  "bitwise": true,
+  "camelcase": true,
+  "curly": true,
+  "eqeqeq": true,
+  "forin": true,
+  "immed": true,
+  "indent": 2,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonew": true,
+  "quotmark": true,
+  "undef": true,
+  "unused": true,
+  "strict": true,
+  "trailing": true,
+  "maxparams": 4,
+  "maxdepth": 4,
+  "maxcomplexity": 10,
+  "maxlen": 79,
+
+  "plusplus": false,
+  "maxstatements": 0,
+  "latedef" : false,
+  "maxcomplexity": 15,
+  "maxdepth": 7
+}
