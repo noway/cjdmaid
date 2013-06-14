@@ -79,7 +79,9 @@ addDataField("location", program.location);
 addDataField("ipv4", program.ipv4);
 addDataField("ipv6", program.ipv6);
 
-util.generatePassword(48)
+when(
+	util.generatePassword(48)
+)
 .then(function (password) {
 	if (!util.isDef(addingData.password)) {
 		addDataField("password", password);
@@ -108,32 +110,41 @@ util.generatePassword(48)
 	}
 });
 
+
 function changeField(field) {
-	return commfn.call(program.prompt, program, field + ": ")
-		.then(function (data) {
-			addingData[field] = data;
-		});
+	return when(
+		commfn.call(program.prompt, program, field + ": ")
+	)
+	.then(function (data) {
+		addingData[field] = data;
+	});
 }
 
 function addField(field) {
 	if (util.isDef(field)) {
 		addingKeys.push(field);
 
-		return commfn.call(program.prompt, program, field + ": ")
-			.then(function (data) {
-				addingData[addingKeys[addingKeys.length - 1]] = data;
-			});
-	} else {
-		return commfn.call(program.prompt, program, "Field name: ")
-			.then(function (data) {
-				if (!data.length) {
-					return when.reject();
-				}
-				addingKeys.push(data);
-				return commfn.call(program.prompt, program, data + ": ");
-			}).then(function (data) {
-				addingData[addingKeys[addingKeys.length - 1]] = data;
-			});
+		return when(
+			commfn.call(program.prompt, program, field + ": ")
+		)
+		.then(function (data) {
+			addingData[addingKeys[addingKeys.length - 1]] = data;
+		});
+
+	}
+	else {
+		return when(
+			commfn.call(program.prompt, program, "Field name: ")
+		)
+		.then(function (data) {
+			if (!data.length) {
+				return when.reject();
+			}
+			addingKeys.push(data);
+			return commfn.call(program.prompt, program, data + ": ");
+		}).then(function (data) {
+			addingData[addingKeys[addingKeys.length - 1]] = data;
+		});
 	}
 }
 
@@ -198,14 +209,18 @@ function showAddingData () {
 		function askAddingDataLine(data) {
 			data = data.toLowerCase();
 			if (data === "a") {
-				addField()
+				when(
+					addField()
+				)
 				.then(function () {
 					showAddingData();
 				});
 				return;
 			}
 			else if (data === "r") {
-				removeField()
+				when(
+					removeField()
+				)
 				.then(function () {
 					showAddingData();
 				});
@@ -229,7 +244,9 @@ function showAddingData () {
 				);
 			}
 
-			changeField(addingKeys[index])
+			when(
+				changeField(addingKeys[index])
+			)
 			.then(function () {
 				showAddingData();
 			});
@@ -238,7 +255,9 @@ function showAddingData () {
 }
 
 function saveAddingDataToConfig() {
-	config.readCustomConf("cjdrouteNodesConf")
+	when(
+		config.readCustomConf("cjdrouteNodesConf")
+	)
 	.then(function (doc) {
 		if (!util.isDef(doc.authorizedPasswords)) {
 			doc.authorizedPasswords = [];
@@ -247,20 +266,23 @@ function saveAddingDataToConfig() {
 
 		doc.authorizedPasswords.push(pushObject);
 
-		config.writeCustomConf("cjdrouteNodesConf",	doc)
+		when(
+			config.writeCustomConf("cjdrouteNodesConf", doc)
+		)
 		.then(function () {
 			console.log("Pass saved!");
 
 			showTransferData(pushObject.password);
 		});
-	});
+	})
 }
 
 function showTransferData (addedPassword) {
 	console.log("");
 	console.log("Here's data that you need send to your friend: ");
-
-	config.readSeveralConfs("cjdmaidConf", "cjdrouteConf")
+	when(
+		config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf"])
+	)
 	.then(function (docs) {
 		var cjdmaidConfJson = docs[0];
 		var cjdrouteConfJson = docs[1];

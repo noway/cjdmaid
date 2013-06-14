@@ -88,7 +88,9 @@ addDataField("email", program.email);
 addDataField("location", program.location);
 
 
-util.isConfigPathPossible(program.configpath, "object")
+when(
+	util.isConfigPathPossible(program.configpath, "object")
+)
 .then(function (ok) {
 	if (!ok) {
 		return util.panic("Impossible --configpath");
@@ -148,31 +150,39 @@ util.isConfigPathPossible(program.configpath, "object")
 });
 
 function changeField(field) {
-	return commfn.call(program.prompt, program, field + ": ")
-		.then(function (data) {
-			addingData[field] = data;
-		});
+	return when(
+		commfn.call(program.prompt, program, field + ": ")
+	)
+	.then(function (data) {
+		addingData[field] = data;
+	});
 }
 
 function addField(field) {
 	if (util.isDef(field)) {
 		addingKeys.push(field);
 
-		return commfn.call(program.prompt, program, field + ": ")
-			.then(function (data) {
-				addingData[addingKeys[addingKeys.length - 1]] = data;
-			});
-	} else {
-		return commfn.call(program.prompt, program, "Field name: ")
-			.then(function (data) {
-				if (!data.length) {
-					return when.reject();
-				}
-				addingKeys.push(data);
-				return commfn.call(program.prompt, program, data + ": ");
-			}).then(function (data) {
-				addingData[addingKeys[addingKeys.length - 1]] = data;
-			});
+		return when(
+			commfn.call(program.prompt, program, field + ": ")
+		)
+		.then(function (data) {
+			addingData[addingKeys[addingKeys.length - 1]] = data;
+		});
+
+	}
+	else {
+		return when(
+			commfn.call(program.prompt, program, "Field name: ")
+		)
+		.then(function (data) {
+			if (!data.length) {
+				return when.reject();
+			}
+			addingKeys.push(data);
+			return commfn.call(program.prompt, program, data + ": ");
+		}).then(function (data) {
+			addingData[addingKeys[addingKeys.length - 1]] = data;
+		});
 	}
 }
 
@@ -236,14 +246,18 @@ function showAddingData () {
 		function askAddingDataLine(data) {
 			data = data.toLowerCase();
 			if (data === "a") {
-				addField()
+				when(
+					addField()
+				)
 				.then(function () {
 					showAddingData();
 				});
 				return;
 			}
 			else if (data === "r") {
-				removeField()
+				when(
+					removeField()
+				)
 				.then(function () {
 					showAddingData();
 				});
@@ -267,7 +281,9 @@ function showAddingData () {
 				);
 			}
 
-			changeField(addingKeys[index])
+			when(
+				changeField(addingKeys[index])
+			)
 			.then(function () {
 				showAddingData();
 			});
@@ -277,7 +293,9 @@ function showAddingData () {
 
 
 function saveAddingDataToConfig () {
-	config.readCustomConf("cjdrouteNodesConf")
+	when(
+		config.readCustomConf("cjdrouteNodesConf")
+	)
 	.then(function (doc) {
 
 		var pushObject = util.cloneObject(addingData);
@@ -306,23 +324,27 @@ function saveAddingDataToConfig () {
 			return writeNodesToFile(doc);
 		}
 
-		return commfn.call(
+		return when(
+			commfn.call(
 				program.confirm,
 				program,
 				"Peer with that address exists. Continue? "
 			)
-			.then(function (ok) {
-				if (ok) {
-					return writeNodesToFile(doc);
-				}
-				console.log("exiting...");
-				process.stdin.destroy(); // few. finaly.
-			});
+		)
+		.then(function (ok) {
+			if (ok) {
+				return writeNodesToFile(doc);
+			}
+			console.log("exiting...");
+			process.stdin.destroy(); // few. finaly.
+		});
 	});
 }
 
 function writeNodesToFile (doc) {
-	config.writeCustomConf("cjdrouteNodesConf", doc)
+	when(
+		config.writeCustomConf("cjdrouteNodesConf", doc)
+	)
 	.then(function () {
 		console.log("Saved.");
 		process.stdin.destroy();
