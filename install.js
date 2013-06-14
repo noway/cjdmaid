@@ -17,7 +17,13 @@
 
 "use strict";
 
+var childProcess = require("child_process");
+var when = require("when");
+var fs = require("fs");
+
 var config = require(__dirname + "/lib/config");
+
+
 
 var cjdrouteNodesConf = {
 	"authorizedPasswords": [],
@@ -29,7 +35,7 @@ var cjdrouteNodesConf = {
 	}
 };
 
-var cjdmaid = {
+var cjdmaidConf = {
 	"cjdrouteConf": "Fill this: Path to your cjdroute.conf",
 	"cjdrouteNodesConf": "/etc/cjdroute.nodes.conf",
 	"cjdrouteTempConf": "/tmp/cjdroute.temp.conf",
@@ -40,30 +46,50 @@ var cjdmaid = {
 	"address": "Fill this: Enter your node address in format ip:port"
 };
 
-config.writeCustomConf("cjdrouteNodesConf", cjdrouteNodesConf)
-.yield(config.writeCustomConf("cjdmaidConf", cjdmaid))
-.then(function () {
-	console.log("installed");
-	process.exit(0);
+
+writeToFile(
+	cjdrouteNodesConf,
+	cjdmaidConf.cjdrouteNodesConf,
+	config.CONFIGS_COMMENTS.cjdrouteNodesConf
+)
+.yield(
+	writeToFile(
+		cjdmaidConf,
+		config.CJDMAID_CONFIG_PATH,
+		config.CONFIGS_COMMENTS.cjdmaidConf
+	)
+)
+.then(function() {
+	var editor = process.env.EDITOR || "nano";
+
+	console.log("Editing " + config.CJDMAID_CONFIG_PATH + "...");
+	var child = childProcess.spawn(editor,	[config.CJDMAID_CONFIG_PATH], {
+		stdio: "inherit"
+	});
+
+	child.on("exit", function (/* code, signal */) {
+		console.log("User close editor!");
+		console.log("Now installed");
+		process.exit(0);
+	});
 });
 
+function writeToFile (doc, path, comment) {
+	var deferred = when.defer();
+	var writingText = JSON.stringify(doc, null, "\t");
 
-/*
-function writeToFile (doc, path, comment, callback) {
-	var result_json = JSON.stringify(doc, null, "\t");
+	writingText = "/*\n" + comment + "*/\n\n" + writingText;
 
-	result_json = comment + result_json;
-
-	fs.writeFile(path, result_json, function (err) {
+	fs.writeFile(path, writingText, function (err) {
 		if(err) {
-			console.log("WARNING! " + path + " is not created! Here error" +
-				err + ". You need create it by yourself");
-			callback();
+			console.log("WARNING! " + path + " is not created! Here error: " +
+				err + ". You need create it by yourself. ");
+			deferred.resolve();
 			return;
 		}
 
 		console.log(path + " saved!");
-		callback();
+		deferred.resolve();
 	});
+	return deferred.promise;
 }
-*/
