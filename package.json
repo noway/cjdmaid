@@ -3,6 +3,19 @@
 	"version": "0.0.1",
 	"author": "noway421 <noway@2ch.hk>",
 	"description": "Cjdns peers manager",
+
+	"bugs": {
+		"url" : "https://github.com/noway421/cjdmaid/issues",
+		"email" : "noway@2ch.hk"
+	},
+
+	"license": "gpl-v3.0",
+
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/noway421/cjdmaid"
+	},
+
 	"scripts": {
 		"install": "node install.js"
 	},
