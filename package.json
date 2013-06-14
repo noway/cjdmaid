@@ -4,7 +4,7 @@
 	"author": "noway <noway@2ch.hk>",
 	"description": "Nice config loader for cjdns",
 	"scripts": {
-		"hahainstall": "node install.js"
+		"install": "node install.js"
 	},
 	"bin" : {
 		"cjdmaid": "./bin/cjdmaid",
