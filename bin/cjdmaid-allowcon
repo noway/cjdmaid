@@ -251,40 +251,16 @@ function saveAddingDataToConfig () {
 
 		var docIter = doc; // pointer
 
-		// creating missing objects
-		for (var i = 0; i < program.configpath.length; i++) {
-			if (!util.isDef(docIter[program.configpath[i]])) {
-				if (i + 1 >= program.configpath.length){
-					// last node must be array
-					docIter[program.configpath[i]] = [];
-				}
-				else if(util.isInt(program.configpath[i + 1])) {
-					// array
-					docIter[program.configpath[i]] = [];
-				}
-				else {
-					// object
-					docIter[program.configpath[i]] = {};
-				}
-			} else {
-				if (i + 1 >= program.configpath.length){
-					if(!util.isArray(docIter[program.configpath[i]])) {
-						util.panic("Impossible --configpath");
-					}
-				}
-				else if(util.isInt(program.configpath[i + 1])) {
-					if(!util.isArray(docIter[program.configpath[i]])) {
-						util.panic("Impossible --configpath");
-					}
-				}
-				else {
-					if(!util.isObject(docIter[program.configpath[i]])) {
-						util.panic("Impossible --configpath");
-					}
-				}
-			}
-			docIter = docIter[program.configpath[i]];
+
+
+		var isPossible =
+			util.isPathPossible(program.configpath, docIter, "array");
+		if (!isPossible) {
+			return util.panic("Impossible --configpath");
 		}
+		docIter = isPossible.pointer;
+
+
 
 		docIter.push(pushObject);
 

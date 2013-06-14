@@ -27,6 +27,5 @@
   "plusplus": false,
   "maxstatements": 0,
   "latedef" : false,
-  "maxcomplexity": 15,
-  "maxdepth": 7
+  "maxcomplexity": 15
 }
