@@ -181,7 +181,7 @@ function saveAddingDataToConfig () {
 		docIter.push(pushObject);
 
 
-		return config.writeCustomConf("cjdrouteNodesConf", doc)
+		return config.writeCustomConf("cjdrouteNodesConf", doc);
 
 	}).then(function () {
 		console.log("Connection saved!");

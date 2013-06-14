@@ -26,24 +26,18 @@
 	+ инсталятор
 	+ добавить --force
 	+ доделать install.js
-	- доделать cjdmaid-start
+	+ доделать cjdmaid-start
 	- выделить addingData в отдельный класс (рефакторинг)
-	- в install.js не падать при невозможности записи
+	+ в install.js не падать при невозможности записи
+	- убедиться в cjdmaid-start
+	+ опубликовать модуль
+
 */
 
 
 var program = require("commander");
-var nodefn = require("when/node/function");
-var when = require("when");
-var path = require("path");
 var fs = require("fs");
 
-/*
-nodefn.call(fs.readFile, path.normalize(__dirname + "/../maid.txt"), 'utf-8')
-.then(function (data) {
-	console.log(data);
-});
-*/
 
 program
 	.version("0.0.1")
@@ -53,8 +47,10 @@ program
 	.command("allowcon", "Add connection to allowedConnections in config.")
 	.command("start", "Start cjdns with saved peers.");
 
-var ascii = fs.readFileSync(__dirname + "/../maid.txt", 'utf-8');
-process.stdout.write(ascii);
+if (process.argv.length < 3) {
+	var ascii = fs.readFileSync(__dirname + "/../maid.txt", "utf-8");
+	process.stdout.write(ascii);
+}
 
 /*
 program.on("--help", function(){

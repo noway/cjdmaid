@@ -288,6 +288,6 @@ function saveAddingDataToConfig () {
 		console.log("Connection saved!");
 
 		return process.stdin.destroy();
-	});;
+	});
 }
 

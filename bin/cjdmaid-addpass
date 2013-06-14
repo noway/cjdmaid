@@ -274,7 +274,7 @@ function saveAddingDataToConfig() {
 
 			showTransferData(pushObject.password);
 		});
-	})
+	});
 }
 
 function showTransferData (addedPassword) {

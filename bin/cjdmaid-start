@@ -20,6 +20,7 @@
 "use strict";
 
 var program = require("commander");
+var when = require("when");
 var childProcess = require("child_process");
 
 var config = require(__dirname + "/../lib/config");
@@ -71,7 +72,9 @@ function mergeRecursive(obj1, obj2) {
 	return obj1;
 }
 
-config.readSeveralConfs("cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf")
+when(
+	config.readSeveralConfs("cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf")
+)
 .then(function (docs) {
 	var cjdmaidConfJson = docs[0];
 	var cjdrouteConfJson = docs[1];
@@ -97,7 +100,7 @@ config.readSeveralConfs("cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf")
 				console.log("stdout: " + stdout);
 				console.log("stderr: " + stderr);
 
-				console.log("Loaded successfully")
+				console.log("Loaded successfully");
 			}
 		);
 	});
