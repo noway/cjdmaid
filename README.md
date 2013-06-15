@@ -28,7 +28,7 @@ Get node.js:
 
     sudo apt-get install nodejs
 
-Install with npm: (Not avalaible yet)
+Install with npm:
 
     sudo npm -g cjdmaid
 
