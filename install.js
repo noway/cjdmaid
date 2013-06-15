@@ -47,10 +47,12 @@ var cjdmaidConf = {
 };
 
 
-writeToFile(
-	cjdrouteNodesConf,
-	cjdmaidConf.cjdrouteNodesConf,
-	config.CONFIGS_COMMENTS.cjdrouteNodesConf
+when(
+	writeToFile(
+		cjdrouteNodesConf,
+		cjdmaidConf.cjdrouteNodesConf,
+		config.CONFIGS_COMMENTS.cjdrouteNodesConf
+	)
 )
 .yield(
 	writeToFile(
