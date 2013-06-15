@@ -24,17 +24,8 @@ var when = require("when");
 
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
-var commfn = require(__dirname + "/../lib/commander/function");
+var addingdata = require(__dirname + "/../lib/addingdata");
 
-var addingData = {};
-var addingKeys = [
-	"password",
-	"name",
-	"email",
-	"location",
-	"ipv6",
-	"ipv4"
-];
 
 program
 	.option("-f, --force", "Immediately continue")
@@ -59,249 +50,83 @@ program.on("--help", function(){
 
 program.parse(process.argv);
 
-function addDataField (key, value) {
-	if (!util.isDef(value)) {
-		return;
-	}
 
-	if (addingKeys.indexOf(key) !== -1){
-		addingData[key] = value;
-	} else {
-		addingKeys.push(key);
-		addingData[key] = value;
-	}
-}
 
-addDataField("password", program.passwd);
-addDataField("name", program.name);
-addDataField("email", program.email);
-addDataField("location", program.location);
-addDataField("ipv4", program.ipv4);
-addDataField("ipv6", program.ipv6);
+var adata = new addingdata({
+	addingKeys: [
+		"password",
+		"name",
+		"email",
+		"location",
+		"ipv6",
+		"ipv4"
+	]
+});
+
+
+adata.setDataField("password", program.passwd);
+adata.setDataField("name", program.name);
+adata.setDataField("email", program.email);
+adata.setDataField("location", program.location);
+adata.setDataField("ipv4", program.ipv4);
+adata.setDataField("ipv6", program.ipv6);
+
 
 when(
 	util.generatePassword(48)
 )
 .then(function (password) {
-	if (!util.isDef(addingData.password)) {
-		addDataField("password", password);
+	if (!util.isDef(adata.addingData.password)) {
+		adata.setDataField("password", password);
 	}
-
-	var neededData = {};
-	for (var i = 0; i < addingKeys.length; i++) {
-		if (!util.isDef(addingData[addingKeys[i]])) {
-			neededData[addingKeys[i]] = addingKeys[i] + ": ";
-		}
-	}
-
-	return commfn.call(program.prompt, program, neededData);
-
-}).then(function (data) {
-	for (var i in data) {
-		if (data.hasOwnProperty(i)) {
-			addDataField(i, data[i]);
-		}
-	}
-
+	return adata.promptMissingFields();
+})
+.then(function () {
 	if (program.force) {
-		saveAddingDataToConfig();
+		return when.resolve();
 	} else {
-		showAddingData();
+		return adata.chooseAction();
 	}
-});
-
-
-function changeField(field) {
-	return when(
-		commfn.call(program.prompt, program, field + ": ")
-	)
-	.then(function (data) {
-		addingData[field] = data;
-	});
-}
-
-function addField(field) {
-	if (util.isDef(field)) {
-		addingKeys.push(field);
-
-		return when(
-			commfn.call(program.prompt, program, field + ": ")
-		)
-		.then(function (data) {
-			addingData[addingKeys[addingKeys.length - 1]] = data;
-		});
-
-	}
-	else {
-		return when(
-			commfn.call(program.prompt, program, "Field name: ")
-		)
-		.then(function (data) {
-			if (!data.length) {
-				return when.reject();
-			}
-			addingKeys.push(data);
-			return commfn.call(program.prompt, program, data + ": ");
-		}).then(function (data) {
-			addingData[addingKeys[addingKeys.length - 1]] = data;
-		});
-	}
-}
-
-function removeField() {
-	var deferred = when.defer();
-
-	console.log("");
-	for (var i = 0; i < addingKeys.length; i++) {
-		console.log("[" + (i + 1) + "] Remove " +
-			"\"" + addingKeys[i] + "\" (" + addingData[addingKeys[i]] + ")");
+})
+.yield(
+	config.readCustomConf("cjdrouteNodesConf")
+)
+.then(function (doc) {
+	if (!util.isDef(doc.authorizedPasswords)) {
+		doc.authorizedPasswords = [];
 	}
 
-	console.log("");
-	console.log("[n] Cancel");
-	console.log("");
+	var pushObject = util.cloneObject(adata.addingData);
+	doc.authorizedPasswords.push(pushObject);
 
-	program.prompt(
-		"What you want remove [n]?: ",
-		function askRemovingDataLine(data) {
-			data = data.toLowerCase();
-			if (data === "" || data === "n") {
-				deferred.resolve();
-				return;
-			}
-			var index = parseInt(data, 10) - 1;
-			if (index < 0 || index > addingKeys.length) {
-				console.log("No such option");
-				return program.prompt(
-					"What you want remove [n]?: ",
-					askRemovingDataLine
-				);
-			}
-			delete addingData[addingKeys[index]];
-			addingKeys.splice(index, 1);
-			deferred.resolve();
-		}
-	);
-	return deferred.promise;
-}
+	return config.writeCustomConf("cjdrouteNodesConf", doc);
+})
+.then(function () {
+	console.log("Pass saved!");
 
-
-
-function showAddingData () {
-	console.log("");
-
-	for (var i = 0; i < addingKeys.length; i++) {
-		console.log("[" + (i + 1) + "] Edit " +
-			"\"" + addingKeys[i]+  "\" (" + addingData[addingKeys[i]] + ")");
-	}
-
-	console.log("");
-
-	console.log("[a] Add new field");
-	console.log("[r] Remove field");
-	console.log("[y] Continue");
-	console.log("[n] Cancel");
-
-	console.log("");
-
-	program.prompt(
-		"What you want to do [y]?: ",
-		function askAddingDataLine(data) {
-			data = data.toLowerCase();
-			if (data === "a") {
-				when(
-					addField()
-				)
-				.then(function () {
-					showAddingData();
-				});
-				return;
-			}
-			else if (data === "r") {
-				when(
-					removeField()
-				)
-				.then(function () {
-					showAddingData();
-				});
-				return;
-			}
-			else if (data === "" || data === "y") {
-				saveAddingDataToConfig();
-				return;
-			}
-			else if (data === "n") {
-				console.log("exiting...");
-				return process.stdin.destroy();
-			}
-
-			var index = parseInt(data, 10) - 1;
-			if (index < 0 || index > addingKeys.length) {
-				console.log("No such option");
-				return program.prompt(
-					"What you want to do [y]?: ",
-					askAddingDataLine
-				);
-			}
-
-			when(
-				changeField(addingKeys[index])
-			)
-			.then(function () {
-				showAddingData();
-			});
-		}
-	);
-}
-
-function saveAddingDataToConfig() {
-	when(
-		config.readCustomConf("cjdrouteNodesConf")
-	)
-	.then(function (doc) {
-		if (!util.isDef(doc.authorizedPasswords)) {
-			doc.authorizedPasswords = [];
-		}
-		var pushObject = util.cloneObject(addingData);
-
-		doc.authorizedPasswords.push(pushObject);
-
-		when(
-			config.writeCustomConf("cjdrouteNodesConf", doc)
-		)
-		.then(function () {
-			console.log("Pass saved!");
-
-			showTransferData(pushObject.password);
-		});
-	});
-}
-
-function showTransferData (addedPassword) {
 	console.log("");
 	console.log("Here's data that you need send to your friend: ");
-	when(
-		config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf"])
-	)
-	.then(function (docs) {
-		var cjdmaidConfJson = docs[0];
-		var cjdrouteConfJson = docs[1];
+	return config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf"]);
 
-		var resultObject = {};
-		resultObject[cjdmaidConfJson.address] = {
-			"password": addedPassword,
-			"publicKey": cjdrouteConfJson.publicKey,
-			"ipv6": cjdrouteConfJson.ipv6,
-			"name": cjdmaidConfJson.name,
-			"email": cjdmaidConfJson.email,
-			"location": cjdmaidConfJson.location
-		};
-		var resultJson = JSON.stringify(resultObject, null, 4);
-		resultJson = resultJson.replace(/^\s{4}/mg, "");
-		resultJson = resultJson.substring(1, resultJson.length);
-		resultJson = resultJson.substring(0, resultJson.length - 1);
+})
+.then(function (docs) {
+	var cjdmaidConfJson = docs[0];
+	var cjdrouteConfJson = docs[1];
 
-		console.log(resultJson);
-		return process.stdin.destroy();
-	});
-}
+	var resultObject = {};
+	resultObject[cjdmaidConfJson.address] = {
+		"password": adata.addingData.password,
+		"publicKey": cjdrouteConfJson.publicKey,
+		"ipv6": cjdrouteConfJson.ipv6,
+		"name": cjdmaidConfJson.name,
+		"email": cjdmaidConfJson.email,
+		"location": cjdmaidConfJson.location
+	};
+	var resultJson = JSON.stringify(resultObject, null, 4);
+	resultJson = resultJson.replace(/^\s{4}/mg, "");
+	resultJson = resultJson.substring(1, resultJson.length);
+	resultJson = resultJson.substring(0, resultJson.length - 1);
+
+	console.log(resultJson);
+	return process.stdin.destroy();
+});

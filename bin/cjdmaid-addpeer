@@ -25,18 +25,8 @@ var when = require("when");
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
 var commfn = require(__dirname + "/../lib/commander/function");
+var addingdata = require(__dirname + "/../lib/addingdata");
 
-
-var addingData = {};
-var addingKeys = [
-	"address",
-	"password",
-	"publicKey",
-	"ipv6",
-	"name",
-	"email",
-	"location"
-];
 
 program
 	.option("-c, --configpath <path>", "Config json path where write data",
@@ -66,26 +56,27 @@ program.on("--help", function(){
 program.parse(process.argv);
 
 
-function addDataField (key, value) {
-	if (!util.isDef(value)) {
-		return;
-	}
+var adata = new addingdata({
+	addingKeys: [
+		"address",
+		"password",
+		"publicKey",
+		"ipv6",
+		"name",
+		"email",
+		"location"
+	]
+});
 
-	if (addingKeys.indexOf(key) !== -1){
-		addingData[key] = value;
-	} else {
-		addingKeys.push(key);
-		addingData[key] = value;
-	}
-}
 
-addDataField("address", program.address);
-addDataField("password", program.passwd);
-addDataField("publicKey", program.publicKey);
-addDataField("ipv6", program.ipv6);
-addDataField("name", program.name);
-addDataField("email", program.email);
-addDataField("location", program.location);
+
+adata.setDataField("address", program.address);
+adata.setDataField("password", program.passwd);
+adata.setDataField("publicKey", program.publicKey);
+adata.setDataField("ipv6", program.ipv6);
+adata.setDataField("name", program.name);
+adata.setDataField("email", program.email);
+adata.setDataField("location", program.location);
 
 
 when(
@@ -119,230 +110,70 @@ when(
 	if (util.isDef(address)) {
 		for(var key in peerJson[address]) {
 			if (peerJson[address].hasOwnProperty(key)) {
-				addDataField(key, peerJson[address][key]);
+				adata.setDataField(key, peerJson[address][key]);
 			}
 		}
-		addDataField("address", address);
+		adata.addDataField("address", address);
 	}
 
-	var neededData = {};
-	for (var i = 0; i < addingKeys.length; i++) {
-		if (!util.isDef(addingData[addingKeys[i]])) {
-			neededData[addingKeys[i]] = addingKeys[i] + ": ";
-		}
-	}
-
-	return commfn.call(program.prompt, program, neededData);
-
+	return adata.promptMissingFields();
 })
-.then(function (data) {
-	for (var i in data) {
-		if (data.hasOwnProperty(i)) {
-			addDataField(i, data[i]);
-		}
+.then(function () {
+	if (program.force) {
+		return when.resolve();
+	} else {
+		return adata.chooseAction();
+	}
+})
+.yield(
+	config.readCustomConf("cjdrouteNodesConf")
+)
+.then(function (doc) {
+
+	var pushObject = util.cloneObject(adata.addingData);
+	delete pushObject.address;
+
+	var docIter = doc; // pointer
+
+
+	var isPossible =
+		util.isPathPossible(program.configpath, docIter, "object");
+	if (!isPossible) {
+		return util.panic("Impossible --configpath");
+	}
+	docIter = isPossible.pointer;
+
+
+
+	var isPeerDefined = util.isDef(docIter[adata.addingData.address]);
+	docIter[adata.addingData.address] = pushObject;
+
+	if (!isPeerDefined) {
+		return writeNodesToFile(doc);
+	}
+	if (program.rewrite){
+		console.log("Peer with that address exists. Rewriting.");
+		return writeNodesToFile(doc);
 	}
 
-	if (program.force) {
-		saveAddingDataToConfig();
-	} else {
-		showAddingData();
-	}
+	return when(
+		commfn.call(
+			program.confirm,
+			program,
+			"Peer with that address exists. Continue? "
+		)
+	)
+	.then(function (ok) {
+		if (!ok) {
+			console.log("exiting...");
+			return process.stdin.destroy();
+		}
+		return writeNodesToFile(doc);
+	});
 });
 
-function changeField(field) {
-	return when(
-		commfn.call(program.prompt, program, field + ": ")
-	)
-	.then(function (data) {
-		addingData[field] = data;
-	});
-}
-
-function addField(field) {
-	if (util.isDef(field)) {
-		addingKeys.push(field);
-
-		return when(
-			commfn.call(program.prompt, program, field + ": ")
-		)
-		.then(function (data) {
-			addingData[addingKeys[addingKeys.length - 1]] = data;
-		});
-
-	}
-	else {
-		return when(
-			commfn.call(program.prompt, program, "Field name: ")
-		)
-		.then(function (data) {
-			if (!data.length) {
-				return when.reject();
-			}
-			addingKeys.push(data);
-			return commfn.call(program.prompt, program, data + ": ");
-		}).then(function (data) {
-			addingData[addingKeys[addingKeys.length - 1]] = data;
-		});
-	}
-}
-
-function removeField() {
-	var deferred = when.defer();
-
-	console.log("");
-	for (var i = 0; i < addingKeys.length; i++) {
-		console.log("[" + (i + 1) + "] Remove " +
-			"\"" + addingKeys[i] + "\" (" + addingData[addingKeys[i]] + ")");
-	}
-
-	console.log("");
-	console.log("[n] Cancel");
-	console.log("");
-
-	program.prompt(
-		"What you want remove [n]?: ",
-		function askRemovingDataLine(data) {
-			data = data.toLowerCase();
-			if (data === "" || data === "n") {
-				deferred.resolve();
-				return;
-			}
-			var index = parseInt(data, 10) - 1;
-			if (index < 0 || index > addingKeys.length) {
-				console.log("No such option");
-				return program.prompt(
-					"What you want remove [n]?: ",
-					askRemovingDataLine
-				);
-			}
-			delete addingData[addingKeys[index]];
-			addingKeys.splice(index, 1);
-			deferred.resolve();
-		}
-	);
-	return deferred.promise;
-}
-
-
-function showAddingData () {
-	console.log("");
-
-	for (var i = 0; i < addingKeys.length; i++) {
-		console.log("[" + (i + 1) + "] Edit " +
-			"\"" + addingKeys[i]+  "\" (" + addingData[addingKeys[i]] + ")");
-	}
-
-	console.log("");
-
-	console.log("[a] Add new field");
-	console.log("[r] Remove field");
-	console.log("[y] Continue");
-	console.log("[n] Cancel");
-
-	console.log("");
-
-	program.prompt(
-		"What you want to do [y]?: ",
-		function askAddingDataLine(data) {
-			data = data.toLowerCase();
-			if (data === "a") {
-				when(
-					addField()
-				)
-				.then(function () {
-					showAddingData();
-				});
-				return;
-			}
-			else if (data === "r") {
-				when(
-					removeField()
-				)
-				.then(function () {
-					showAddingData();
-				});
-				return;
-			}
-			else if (data === "" || data === "y") {
-				saveAddingDataToConfig();
-				return;
-			}
-			else if (data === "n") {
-				console.log("exiting...");
-				return process.stdin.destroy();
-			}
-
-			var index = parseInt(data, 10) - 1;
-			if (index < 0 || index > addingKeys.length) {
-				console.log("No such option");
-				return program.prompt(
-					"What you want to do [y]?: ",
-					askAddingDataLine
-				);
-			}
-
-			when(
-				changeField(addingKeys[index])
-			)
-			.then(function () {
-				showAddingData();
-			});
-		}
-	);
-}
-
-
-function saveAddingDataToConfig () {
-	when(
-		config.readCustomConf("cjdrouteNodesConf")
-	)
-	.then(function (doc) {
-
-		var pushObject = util.cloneObject(addingData);
-		delete pushObject.address;
-
-		var docIter = doc; // pointer
-
-
-		var isPossible =
-			util.isPathPossible(program.configpath, docIter, "object");
-		if (!isPossible) {
-			return util.panic("Impossible --configpath");
-		}
-		docIter = isPossible.pointer;
-
-
-
-		var isPeerDefined = util.isDef(docIter[addingData.address]);
-		docIter[addingData.address] = pushObject;
-
-		if (!isPeerDefined) {
-			return writeNodesToFile(doc);
-		}
-		if (program.rewrite){
-			console.log("Peer with that address exists. Rewriting.");
-			return writeNodesToFile(doc);
-		}
-
-		return when(
-			commfn.call(
-				program.confirm,
-				program,
-				"Peer with that address exists. Continue? "
-			)
-		)
-		.then(function (ok) {
-			if (ok) {
-				return writeNodesToFile(doc);
-			}
-			console.log("exiting...");
-			process.stdin.destroy(); // few. finaly.
-		});
-	});
-}
-
 function writeNodesToFile (doc) {
-	when(
+	return when(
 		config.writeCustomConf("cjdrouteNodesConf", doc)
 	)
 	.then(function () {
