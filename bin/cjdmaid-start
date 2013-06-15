@@ -73,7 +73,7 @@ function mergeRecursive(obj1, obj2) {
 }
 
 when(
-	config.readSeveralConfs("cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf")
+	config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf", "cjdrouteNodesConf"])
 )
 .then(function (docs) {
 	var cjdmaidConfJson = docs[0];
@@ -85,23 +85,30 @@ when(
 
 	config.writeCustomConf("cjdrouteTempConf", resultJson)
 	.then(function () {
+
 		console.log("Temporary file created");
-		childProcess.exec(
-			"nohup " +
-			cjdmaidConfJson.cjdrouteBinary +
-			" < " +
-			cjdmaidConfJson.cjdrouteTempConf,
 
-			function (error, stdout, stderr) {
-				if (error !== null) {
-					console.log("exec error: " + error);
-					return;
-				}
-				console.log("stdout: " + stdout);
-				console.log("stderr: " + stderr);
+		var cmd = cjdmaidConfJson.cjdrouteBinary +
+			" < " + cjdmaidConfJson.cjdrouteTempConf;
 
-				console.log("Loaded successfully");
+		var child = childProcess.spawn('sh', ['-c', cmd], {
+				detached: true,
+				stdio: ['pipe', 'pipe', 'pipe']
 			}
 		);
+		child.unref();
+
+		child.stdout.on('data', function (data) {
+			console.log(data.toString());
+		});
+
+		child.stderr.on('data', function (data) {
+			console.error(data.toString());
+		});
+
+		child.on("exit", function (code) {
+			console.log('Command executed. Exit code: ' + code);
+			process.exit(0);
+		});
 	});
 });

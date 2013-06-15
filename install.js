@@ -65,7 +65,7 @@ when(
 	var editor = process.env.EDITOR || "nano";
 
 	console.log("Editing " + config.CJDMAID_CONFIG_PATH + "...");
-	var child = childProcess.spawn(editor,	[config.CJDMAID_CONFIG_PATH], {
+	var child = childProcess.spawn(editor, [config.CJDMAID_CONFIG_PATH], {
 		stdio: "inherit"
 	});
 
