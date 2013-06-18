@@ -91,23 +91,23 @@ when(
 		var cmd = cjdmaidConfJson.cjdrouteBinary +
 			" < " + cjdmaidConfJson.cjdrouteTempConf;
 
-		var child = childProcess.spawn('sh', ['-c', cmd], {
+		var child = childProcess.spawn("sh", ["-c", cmd], {
 				detached: true,
-				stdio: ['pipe', 'pipe', 'pipe']
+				stdio: ["pipe", "pipe", "pipe"]
 			}
 		);
 		child.unref();
 
-		child.stdout.on('data', function (data) {
+		child.stdout.on("data", function (data) {
 			console.log(data.toString());
 		});
 
-		child.stderr.on('data', function (data) {
+		child.stderr.on("data", function (data) {
 			console.error(data.toString());
 		});
 
 		child.on("exit", function (code) {
-			console.log('Command executed. Exit code: ' + code);
+			console.log("Command executed. Exit code: " + code);
 			process.exit(0);
 		});
 	});
