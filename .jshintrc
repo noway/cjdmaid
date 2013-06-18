@@ -25,6 +25,5 @@
   "maxlen": 79,
 
   "plusplus": false,
-  "maxstatements": 0,
   "latedef" : false
 }
