@@ -24,15 +24,16 @@
                                             ''
 ## Installing
 
-Get node.js:
+Install node.js: http://nodejs.org/
 
-    sudo apt-get install nodejs
 
-Install with npm:
+Install cjdmaid:
 
-    sudo npm -g cjdmaid
+Using npm:
 
-Install from source:
+    sudo npm install -g cjdmaid
+
+Or from source:
 
     git clone https://github.com/noway421/cjdmaid.git
     cd cjdmaid
