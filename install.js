@@ -58,11 +58,9 @@ when(
 
 function writeToFile (doc, path, comment) {
 	var deferred = when.defer();
-	doc["/**/"] = comment;
+	doc["/**/"] = "\n\t" + comment + "\n\t";
 
 	var writingText = JSONcomments.stringify(doc, null, "\t");
-
-	//writingText = "/*\n" + comment + "*/\n\n" + writingText;
 
 	fs.writeFile(path, writingText, function (err) {
 		if(err) {
