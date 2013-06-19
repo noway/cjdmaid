@@ -5,8 +5,8 @@
 	"description": "Cjdns peers manager",
 
 	"bugs": {
-		"url" : "https://github.com/noway421/cjdmaid/issues",
-		"email" : "noway@2ch.hk"
+		"url": "https://github.com/noway421/cjdmaid/issues",
+		"email": "noway@2ch.hk"
 	},
 
 	"license": "gpl-v3.0",
