@@ -22,24 +22,12 @@ var when = require("when");
 var fs = require("fs");
 
 var config = require(__dirname + "/lib/config");
+var JSONcomments = require("json-comments-js");
 
 
-
-var cjdrouteNodesConf = {
-	"authorizedPasswords": [],
-	"interfaces": {
-		"UDPInterface": [ { "connectTo": {} } ]
-	},
-	"router": {
-		"ipTunnel":	{ "allowedConnections": [],	"outgoingConnections": [] }
-	}
-};
 
 var cjdmaidConf = {
 	"cjdrouteConf": "Fill this: Path to your cjdroute.conf",
-	"cjdrouteNodesConf": "/etc/cjdroute.nodes.conf",
-	"cjdrouteTempConf": "/tmp/cjdroute.temp.conf",
-	"cjdrouteBinary": "Fill this: Path to cjdroute binary",
 	"name": "Fill this: Enter your nickname here",
 	"email": "Fill this: Your email",
 	"location": "Fill this: Your location",
@@ -48,13 +36,6 @@ var cjdmaidConf = {
 
 
 when(
-	writeToFile(
-		cjdrouteNodesConf,
-		cjdmaidConf.cjdrouteNodesConf,
-		config.CONFIGS_COMMENTS.cjdrouteNodesConf
-	)
-)
-.yield(
 	writeToFile(
 		cjdmaidConf,
 		config.CJDMAID_CONFIG_PATH,
@@ -77,9 +58,11 @@ when(
 
 function writeToFile (doc, path, comment) {
 	var deferred = when.defer();
-	var writingText = JSON.stringify(doc, null, "\t");
+	doc["/**/"] = comment;
 
-	writingText = "/*\n" + comment + "*/\n\n" + writingText;
+	var writingText = JSONcomments.stringify(doc, null, "\t");
+
+	//writingText = "/*\n" + comment + "*/\n\n" + writingText;
 
 	fs.writeFile(path, writingText, function (err) {
 		if(err) {

@@ -76,7 +76,8 @@ when(
 	return adata.promptMissingFields();
 
 
-}).then(function () {
+})
+.then(function () {
 	if (program.force) {
 		return when.resolve();
 	} else {
@@ -85,7 +86,7 @@ when(
 
 })
 .yield(
-	config.readCustomConf("cjdrouteNodesConf")
+	config.readCustomConf("cjdrouteConf")
 )
 .then(function (doc) {
 
@@ -107,7 +108,7 @@ when(
 	docIter.push(pushObject);
 
 
-	return config.writeCustomConf("cjdrouteNodesConf", doc);
+	return config.writeCustomConf("cjdrouteConf", doc);
 
 }).then(function () {
 	console.log("Connection saved!");

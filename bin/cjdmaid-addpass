@@ -89,9 +89,10 @@ when(
 	}
 })
 .yield(
-	config.readCustomConf("cjdrouteNodesConf")
+	config.readCustomConf("cjdrouteConf")
 )
 .then(function (doc) {
+
 	if (!util.isDef(doc.authorizedPasswords)) {
 		doc.authorizedPasswords = [];
 	}
@@ -99,7 +100,7 @@ when(
 	var pushObject = util.cloneObject(adata.addingData);
 	doc.authorizedPasswords.push(pushObject);
 
-	return config.writeCustomConf("cjdrouteNodesConf", doc);
+	return config.writeCustomConf("cjdrouteConf", doc);
 })
 .then(function () {
 	console.log("Pass saved!");

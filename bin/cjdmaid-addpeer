@@ -126,7 +126,7 @@ when(
 	}
 })
 .yield(
-	config.readCustomConf("cjdrouteNodesConf")
+	config.readCustomConf("cjdrouteConf")
 )
 .then(function (doc) {
 
@@ -174,7 +174,7 @@ when(
 
 function writeNodesToFile (doc) {
 	return when(
-		config.writeCustomConf("cjdrouteNodesConf", doc)
+		config.writeCustomConf("cjdrouteConf", doc)
 	)
 	.then(function () {
 		console.log("Saved.");
