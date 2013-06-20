@@ -174,7 +174,7 @@ when(
 
 function writeNodesToFile (doc) {
 	return when(
-		config.writeCustomConf("cjdrouteConf", doc)
+		config.writeCustomConfSafe("cjdrouteConf", doc)
 	)
 	.then(function () {
 		console.log("Saved.");

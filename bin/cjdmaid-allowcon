@@ -116,7 +116,7 @@ when(
 
 	docIter.push(pushObject);
 
-	return config.writeCustomConf("cjdrouteConf", doc);
+	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })
 .then(function () {
 	console.log("Connection saved!");

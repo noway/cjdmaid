@@ -99,8 +99,7 @@ when(
 
 	var pushObject = util.cloneObject(adata.addingData);
 	doc.authorizedPasswords.push(pushObject);
-
-	return config.writeCustomConf("cjdrouteConf", doc);
+	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })
 .then(function () {
 	console.log("Pass saved!");
