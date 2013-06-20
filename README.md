@@ -22,6 +22,17 @@
                                       / ,'  | :
                                      |,.'   |.'
                                             ''
+## Demonstration
+[![Hosted by imgur.com](http://i.imgur.com/UqzvKnN.gif "Hosted by imgur.com")](http://imgur.com/UqzvKnN)
+
+
+## Features
+* Nice CLI with interactivity.
+* Keeps all your comments in config. Not just cut them out.
+* Can add data to "allowedConnections" and "outgoingConnections" in config too.
+* Designed for best User Experience
+
+
 ## Installing
 
 Install node.js: http://nodejs.org/
@@ -40,7 +51,8 @@ Or from source:
     npm install
     sudo npm link
 
-# Commands
+
+## Commands
 
 
     Usage: cjdmaid [options] [command]
@@ -58,7 +70,12 @@ Or from source:
         -h, --help     output usage information
         -V, --version  output the version number
 
-# LICENSE
+## Plans
+
+* Add commands for interacting with cjdns admin
+* Rewrite in python?
+
+## LICENSE
     cjdmaid - cjdns peers manager
     Copyright (C) 2013  noway421
 
