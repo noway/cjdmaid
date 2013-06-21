@@ -63,6 +63,7 @@ Or from source:
         addpeer                Add peer to your config.
         outcon                 Add connection to outgoingConnections in config.
         allowcon               Add connection to allowedConnections in config.
+        admin                  Execute command in cjdns admin.
         help [cmd]             display help for [cmd]
 
     Options:
