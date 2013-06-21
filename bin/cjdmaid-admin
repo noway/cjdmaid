@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
+var program = require("commander");
+var when = require("when");
+
+var util = require(__dirname + "/../lib/util");
+var config = require(__dirname + "/../lib/config");
+var admin = require(__dirname + "/../lib/admin");
+
+
+program.on("--help", function () {
+	console.log("  Usage:");
+	console.log("");
+	console.log("    $ cjdmaid-admin <command> [options]");
+	console.log("");
+	console.log("  Examples:");
+	console.log("");
+	console.log("    $ cjdmaid-admin ping");
+	console.log("    $ cjdmaid-admin functions");
+});
+
+program.parse(process.argv);
+
+var adminCopy = new admin();
+var session;
+
+when(
+	config.readJson(util.expanduser("~/.cjdnsadmin"))
+)
+.then(function (data) {
+	return adminCopy.connect(data.addr, data.port, data.password);
+})
+.then(function (sess) {
+	session = sess;
+	return session[process.argv[2]].apply(session, process.argv.splice(3));
+})
+.then(function () {
+	session.disconnect();
+});
+
