@@ -53,10 +53,5 @@
 		"grunt-simple-mocha": "~0.4.0"
 	},
 
-	"engines": {
-		"node": "~0.10"
-	},
-
-	"preferGlobal": true,
-	"os": [ "linux" ]
+	"preferGlobal": true
 }
