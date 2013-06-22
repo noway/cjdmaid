@@ -51,6 +51,25 @@ Or from source:
     npm install
     sudo npm link
 
+After launching this commands wait for on-screen instructions.
+
+## Updating
+
+Simple use following command:
+
+    sudo npm -g update cjdmaid
+
+Or if you installed from source:
+
+Get last copy of repo. If you dont do any changes, just use
+
+    git pull origin
+
+then
+
+    npm install
+    sudo npm rm cjdmaid
+    sudo npm link
 
 ## Commands
 
