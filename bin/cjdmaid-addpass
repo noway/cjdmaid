@@ -117,11 +117,20 @@ when(
 	resultObject[cjdmaidConfJson.address] = {
 		"password": adata.addingData.password,
 		"publicKey": cjdrouteConfJson.publicKey,
-		"ipv6": cjdrouteConfJson.ipv6,
+		"ipv6": cjdrouteConfJson.ipv6
+		/*,
 		"name": cjdmaidConfJson.name,
 		"email": cjdmaidConfJson.email,
 		"location": cjdmaidConfJson.location
+		*/
 	};
+
+	["name", "email", "location"].forEach(function (key) {
+		if (cjdmaidConfJson[key]) {
+			resultObject[cjdmaidConfJson.address][key] = cjdmaidConfJson[key];
+		}
+	});
+
 	var resultJson = JSON.stringify(resultObject, null, 4);
 	resultJson = resultJson.replace(/^\s{4}/mg, "");
 	resultJson = resultJson.substring(1, resultJson.length);

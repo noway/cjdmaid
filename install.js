@@ -18,6 +18,7 @@
 "use strict";
 
 var childProcess = require("child_process");
+var commfn = require(__dirname + "/lib/commander/function");
 var when = require("when");
 var fs = require("fs");
 
@@ -25,23 +26,31 @@ var config = require(__dirname + "/lib/config");
 var JSONcomments = require("json-comments-js");
 
 
-
 var cjdmaidConf = {
 	"cjdrouteConf": "Fill this: Path to your cjdroute.conf",
-	"name": "Fill this: Enter your nickname here",
-	"email": "Fill this: Your email",
-	"location": "Fill this: Your location",
-	"address": "Fill this: Enter your node address in format ip:port"
+	"name": "Optional: Your nickname",
+	"email": "Optional: Your email",
+	"location": "Optional: Your location",
+	"address": "Optional: Enter your node address in format ip:port"
 };
 
-
 when(
-	writeToFile(
+	commfn.call(fs.exists, fs, config.CJDMAID_CONFIG_PATH)
+)
+.then(function (exists) {
+	if (exists) {
+		console.log(config.CJDMAID_CONFIG_PATH + " already exists");
+		console.log("Now installed");
+		process.exit(0);
+		return when.reject();
+	}
+
+	return writeToFile(
 		cjdmaidConf,
 		config.CJDMAID_CONFIG_PATH,
 		config.CONFIGS_COMMENTS.cjdmaidConf
-	)
-)
+	);
+})
 .then(function() {
 	var editor = process.env.EDITOR || "nano";
 
