@@ -1,6 +1,6 @@
 {
 	"name": "cjdmaid",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"author": "noway421 <noway@2ch.hk>",
 	"description": "Cjdns peers manager",
 
@@ -24,8 +24,7 @@
 		"cjdmaid-addpass": "./bin/cjdmaid-addpass",
 		"cjdmaid-addpeer": "./bin/cjdmaid-addpeer",
 		"cjdmaid-allowcon": "./bin/cjdmaid-allowcon",
-		"cjdmaid-outcon": "./bin/cjdmaid-outcon",
-		"cjdmaid-start": "./bin/cjdmaid-start"
+		"cjdmaid-outcon": "./bin/cjdmaid-outcon"
 	},
 
 	"config": {
