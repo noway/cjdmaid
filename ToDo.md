@@ -1,0 +1,23 @@
+ToDo:
+- [x] Finish the arguments.
+- [x] rename pass_data, pass_keys and peer_data, peer_keys to same name
+- [x] Make a function to add fields programmatically
+- [x] Loader
+- [x] Installer
+- [x] add --force option
+- [x] Finish install.js
+- [x] Finish cjdmaid-start
+- [x] Pick out addingData to separate class (refactoring)
+- [x] Make install.js not fall if you can't write
+- [x] Verify cjdmaid-start
+- [x] Publish module
+- [x] Add gif image to readme
+- [x] Implement JSON with comments
+- [x] Port bencode
+- [x] Add code to communicate with cjdns admin
+- [ ] Apply changes without restart using cjdns admin
+- [x] Admin commands
+- [x] Do a backup before saving cjdroute.conf
+- [x] Check for the existence of cjdmaid.conf before installing
+- [x] Support subscriptions to channels (streams) in cjdns admin
+- [ ] Port features from cjdcmd and contrib/python
