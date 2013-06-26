@@ -24,15 +24,8 @@ var when = require("when");
 
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
-//var commfn = require(__dirname + "/../lib/commander/function");
 var addingdata = require(__dirname + "/../lib/addingdata");
 
-/*
-var addingData = {};
-var addingKeys = [
-	"publicKey"
-];
-*/
 
 program
 	.option("-c, --configpath <path>", "Config json path where write data",
