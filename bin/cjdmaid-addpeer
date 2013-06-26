@@ -170,7 +170,13 @@ when(
 		}
 		return writeNodesToFile(doc);
 	});
+})
+.otherwise(function (err) {
+	if (err) {
+		return util.panic(err);
+	}
 });
+
 
 function writeNodesToFile (doc) {
 	return when(

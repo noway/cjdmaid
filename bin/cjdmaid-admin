@@ -79,5 +79,7 @@ when(
 	return session.disconnect();
 })
 .otherwise(function (err) {
-	return util.panic(err.stack);
+	if (err) {
+		return util.panic(err);
+	}
 });

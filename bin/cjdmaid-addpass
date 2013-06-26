@@ -138,4 +138,9 @@ when(
 
 	console.log(resultJson);
 	return process.stdin.destroy();
+})
+.otherwise(function (err) {
+	if (err) {
+		return util.panic(err);
+	}
 });
