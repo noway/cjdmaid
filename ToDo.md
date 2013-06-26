@@ -21,3 +21,4 @@ ToDo:
 - [x] Check for the existence of cjdmaid.conf before installing
 - [x] Support subscriptions to channels (streams) in cjdns admin
 - [ ] Port features from cjdcmd and contrib/python
+- [ ] Rename do cjdns-maid or cjd-maid or something.
