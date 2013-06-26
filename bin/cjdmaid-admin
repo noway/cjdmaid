@@ -64,14 +64,13 @@ when(
 })
 .then(function (data) {
 	console.log(data);
+
 	if (typeof data.streamId !== "undefined" && data.error === "none") {
-		return (function () {
-			var deferred = when.defer();
-			process.on("SIGINT", function () {
-				deferred.resolve();
-			});
-			return deferred.promise;
-		})();
+		var deferred = when.defer();
+		process.on("SIGINT", function () {
+			deferred.resolve();
+		});
+		return deferred.promise;
 	}
 	return;
 })
