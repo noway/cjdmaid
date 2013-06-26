@@ -51,9 +51,33 @@ when(
 })
 .then(function (sess) {
 	session = sess;
-	return session[process.argv[2]].apply(session, process.argv.splice(3));
+	var funcName = process.argv[2];
+	var args = process.argv.splice(3);
+
+	if (typeof session.constructor.prototype[funcName] === "undefined") {
+		console.log("No such function");
+		session.disconnect();
+		return when.reject();
+	}
+
+	return session[funcName].apply(session, args);
+})
+.then(function (data) {
+	console.log(data);
+	if (typeof data.streamId !== "undefined" && data.error === "none") {
+		return (function () {
+			var deferred = when.defer();
+			process.on("SIGINT", function () {
+				deferred.resolve();
+			});
+			return deferred.promise;
+		})();
+	}
+	return;
 })
 .then(function () {
-	session.disconnect();
+	return session.disconnect();
+})
+.otherwise(function (err) {
+	return util.panic(err.stack);
 });
-

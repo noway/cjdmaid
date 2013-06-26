@@ -39,7 +39,7 @@
 	+ административные команды
 	+ делать бекап cjdroute.conf перед сохранением
 	+ проверять на присутствие cjdmaid.conf перед установкой
-	- поддержка подписок на каналы (streams) в cjdns admin
+	+ поддержка подписок на каналы (streams) в cjdns admin
 	- обработка ошибок (long traces или node-panic)
 	- портировать фишки из cjdcmd и contrib/python
 */
