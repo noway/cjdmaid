@@ -54,7 +54,7 @@ when(
 	var funcName = process.argv[2];
 	var args = process.argv.splice(3);
 
-	if (typeof session.constructor.prototype[funcName] === "undefined") {
+	if (!util.isDef(session.constructor.prototype[funcName])) {
 		console.log("No such function");
 		session.disconnect();
 		return when.reject();
@@ -65,7 +65,7 @@ when(
 .then(function (data) {
 	console.log(data);
 
-	if (typeof data.streamId !== "undefined" && data.error === "none") {
+	if (util.isDef(data.streamId) && data.error === "none") {
 		var deferred = when.defer();
 		process.on("SIGINT", function () {
 			deferred.resolve();
