@@ -84,7 +84,8 @@ when(
 )
 .then(function (ok) {
 	if (!ok) {
-		return util.panic("Impossible --configpath");
+		var err = new Error("Impossible --configpath");
+		return util.panic(err);
 	}
 })
 .yield(
@@ -103,7 +104,7 @@ when(
 	try {
 		peerJson = JSON.parse(addBrackets);
 	} catch (e) {
-		return util.panic("Error while parsing json. Check it for errors.");
+		return util.panic(e);
 	}
 
 	var address = Object.keys(peerJson)[0];
@@ -139,7 +140,8 @@ when(
 	var isPossible =
 		util.isPathPossible(program.configpath, docIter, "object");
 	if (!isPossible) {
-		return util.panic("Impossible --configpath");
+		var err = new Error("Impossible --configpath");
+		return util.panic(err);
 	}
 	docIter = isPossible.pointer;
 

@@ -80,7 +80,8 @@ when(
 )
 .then(function (ok) {
 	if (!ok) {
-		util.panic("Impossible --configpath");
+		var err = new Error("Impossible --configpath");
+		return util.panic(err);
 	}
 
 	return adata.promptMissingFields();
@@ -108,7 +109,8 @@ when(
 	var isPossible =
 		util.isPathPossible(program.configpath, docIter, "array");
 	if (!isPossible) {
-		return util.panic("Impossible --configpath");
+		var err = new Error("Impossible --configpath");
+		return util.panic(err);
 	}
 	docIter = isPossible.pointer;
 
