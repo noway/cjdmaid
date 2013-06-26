@@ -75,9 +75,9 @@ when(
 	}
 	return;
 })
-.then(function () {
-	return session.disconnect();
-})
+.yield(
+	session.disconnect()
+)
 .otherwise(function (err) {
 	if (err) {
 		return util.panic(err);
