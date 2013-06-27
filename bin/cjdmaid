@@ -25,7 +25,7 @@ var license = require(__dirname + "/../lib/license");
 
 
 program
-	.version("0.0.1")
+	.version(require(__dirname + "/../package.json").version)
 	.command("addpass", "Add authorized password to config.")
 	.command("addpeer", "Add peer to your config.")
 	.command("outcon", "Add connection to outgoingConnections in config.")
