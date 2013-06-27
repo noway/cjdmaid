@@ -25,6 +25,7 @@ var when = require("when");
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
 var admin = require(__dirname + "/../lib/admin");
+var license = require(__dirname + "/../lib/license");
 
 
 program.on("--help", function () {
@@ -36,6 +37,8 @@ program.on("--help", function () {
 	console.log("");
 	console.log("    $ cjdmaid-admin ping");
 	console.log("    $ cjdmaid-admin functions");
+	console.log("");
+	license();
 });
 
 program.parse(process.argv);

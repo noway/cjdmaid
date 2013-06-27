@@ -25,6 +25,7 @@ var when = require("when");
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
 var addingdata = require(__dirname + "/../lib/addingdata");
+var license = require(__dirname + "/../lib/license");
 
 
 program
@@ -42,6 +43,7 @@ program.on("--help", function () {
 	console.log("    $ cjdmaid-outcon " +
 		"--publicKey QmdsfOThiIsExampleSfmOIgnSGnxNs");
 	console.log("");
+	license();
 });
 
 
