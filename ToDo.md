@@ -21,4 +21,15 @@ ToDo:
 - [x] Check for the existence of cjdmaid.conf before installing
 - [x] Support subscriptions to channels (streams) in cjdns admin
 - [ ] Port features from cjdcmd and contrib/python
+- [x] Port dumptable
+- [x] Port findnodes
+- [ ] Port dynamicEndpoints.py
+- [ ] Port pingAll.py
+- [ ] Port "cjdcmd ping
+- [ ] Port "cjdcmd route
+- [ ] Port "cjdcmd traceroute
+- [ ] Port "cjdcmd ip
+- [ ] Port "cjdcmd peers
+- [ ] Port "cjdcmd host
+- [ ] Port "cjdcmd hostname
 - [ ] Rename to cjdns-maid or cjd-maid or something.
