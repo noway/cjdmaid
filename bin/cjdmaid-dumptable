@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* jshint camelcase: false */
+
+"use strict";
+
+var program = require("commander");
+var when = require("when");
+var license = require(__dirname + "/../lib/license");
+var config = require(__dirname + "/../lib/config");
+var util = require(__dirname + "/../lib/util");
+var admin = require(__dirname + "/../lib/admin");
+
+
+program.on("--help", function () {
+	license();
+});
+
+var adminCopy = new admin();
+var session;
+
+program.parse(process.argv);
+
+when(
+	config.readJson(util.expanduser("~/.cjdnsadmin"))
+)
+.then(function (data) {
+	return adminCopy.connect(data.addr, data.port, data.password);
+})
+.then(function (sess) {
+	session = sess;
+
+	return dumpTable(0);
+})
+.then(function () {
+	return session.disconnect();
+})
+.otherwise(function (err) {
+	if (err) {
+		return util.panic(err);
+	}
+});
+
+function dumpTable (index) {
+	return when(
+		session.NodeStore_dumpTable(index)
+	)
+	.then(function (data) {
+		for (var i = 0; i < data.routingTable.length; i++) {
+			var r = data.routingTable[i];
+			console.log(r.ip, r.path, r.link, r.version);
+		}
+		if (!util.isDef(data.more)) {
+			console.log("count " + data.count);
+			return;
+		}
+		return dumpTable(index + 1);
+	});
+}
