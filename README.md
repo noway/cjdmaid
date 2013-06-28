@@ -92,8 +92,7 @@ then
 
 ## Plans
 
-* Add commands for interacting with cjdns admin
-* Rewrite in python?
+[ToDo.md](ToDo.md)
 
 ## LICENSE
     cjdmaid - cjdns peers manager
