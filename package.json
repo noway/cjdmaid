@@ -24,7 +24,10 @@
 		"cjdmaid-addpass": "./bin/cjdmaid-addpass",
 		"cjdmaid-addpeer": "./bin/cjdmaid-addpeer",
 		"cjdmaid-allowcon": "./bin/cjdmaid-allowcon",
-		"cjdmaid-outcon": "./bin/cjdmaid-outcon"
+		"cjdmaid-outcon": "./bin/cjdmaid-outcon",
+		"cjdmaid-admin": "./bin/cjdmaid-admin",
+		"cjdmaid-dumptable": "./bin/cjdmaid-dumptable",
+		"cjdmaid-findnodes": "./bin/cjdmaid-findnodes"
 	},
 
 	"config": {
