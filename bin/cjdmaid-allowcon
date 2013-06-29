@@ -76,14 +76,12 @@ var adata = new addingdata({
 var adminCopy = new admin();
 var session;
 
-
 adata.setDataField("publicKey", program.publicKey);
 adata.setDataField("ip4Address", program.ipv4);
 adata.setDataField("ip6Address", program.ipv6);
 adata.setDataField("name", program.name);
 adata.setDataField("email", program.email);
 adata.setDataField("location", program.location);
-
 
 
 when(
@@ -104,21 +102,15 @@ when(
 )
 .then(function (doc) {
 	var pushObject = util.cloneObject(adata.addingData);
-
 	var docIter = doc; // pointer
 
-
-
-	var isPossible =
-		util.isPathPossible(configpath, docIter, "array");
+	var isPossible = util.isPathPossible(configpath, docIter, "array");
 	if (!isPossible) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
 	}
+
 	docIter = isPossible.pointer;
-
-
-
 	docIter.push(pushObject);
 
 	return config.writeCustomConfSafe("cjdrouteConf", doc);

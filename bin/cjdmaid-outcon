@@ -89,8 +89,6 @@ when(
 	var pushObject = adata.addingData.publicKey;
 	var docIter = doc; // pointer
 
-
-
 	var isPossible =
 		util.isPathPossible(configpath, docIter, "array");
 	if (!isPossible) {
@@ -99,14 +97,9 @@ when(
 	}
 	docIter = isPossible.pointer;
 
-
-
-
 	docIter.push(pushObject);
 
-
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
-
 })
 .then(function () {
 	console.log("Saved to config!");

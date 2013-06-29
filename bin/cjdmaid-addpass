@@ -99,7 +99,6 @@ when(
 	config.readCustomConf("cjdrouteConf")
 )
 .then(function (doc) {
-
 	if (!util.isDef(doc.authorizedPasswords)) {
 		doc.authorizedPasswords = [];
 	}
@@ -110,6 +109,7 @@ when(
 })
 .then(function () {
 	console.log("Saved to config.");
+
 	if (program.bare) {
 		return;
 	}
@@ -146,11 +146,6 @@ when(
 		"password": adata.addingData.password,
 		"publicKey": cjdrouteConfJson.publicKey,
 		"ipv6": cjdrouteConfJson.ipv6
-		/*,
-		"name": cjdmaidConfJson.name,
-		"email": cjdmaidConfJson.email,
-		"location": cjdmaidConfJson.location
-		*/
 	};
 
 	["name", "email", "location"].forEach(function (key) {

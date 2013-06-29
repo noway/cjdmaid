@@ -75,7 +75,6 @@ var configpath = [
 	"connectTo"
 ];
 
-
 var adata = new addingdata({
 	addingKeys: [
 		"address",
@@ -148,7 +147,6 @@ when(
 
 	var docIter = doc; // pointer
 
-
 	var isPossible =
 		util.isPathPossible(configpath, docIter, "object");
 	if (!isPossible) {
@@ -156,8 +154,6 @@ when(
 		return util.panic(err);
 	}
 	docIter = isPossible.pointer;
-
-
 
 	var isPeerDefined = util.isDef(docIter[adata.addingData.address]);
 	docIter[adata.addingData.address] = pushObject;
@@ -191,7 +187,6 @@ when(
 		return util.panic(err);
 	}
 });
-
 
 function savePeer (doc) {
 	return when(
