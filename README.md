@@ -83,6 +83,8 @@ then
         outcon                 Add connection to outgoingConnections in config.
         allowcon               Add connection to allowedConnections in config.
         admin                  Execute command in cjdns admin.
+        dumptable              Dump whole routing table.
+        findnodes              Prints new nodes in routing table.
         help [cmd]             display help for [cmd]
 
     Options:
