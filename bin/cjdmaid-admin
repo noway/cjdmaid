@@ -23,7 +23,6 @@ var program = require("commander");
 var when = require("when");
 
 var util = require(__dirname + "/../lib/util");
-var config = require(__dirname + "/../lib/config");
 var admin = require(__dirname + "/../lib/admin");
 var license = require(__dirname + "/../lib/license");
 
@@ -47,11 +46,8 @@ var adminCopy = new admin();
 var session;
 
 when(
-	config.readJson(util.expanduser("~/.cjdnsadmin"))
+	adminCopy.connectWithAdminInfo()
 )
-.then(function (data) {
-	return adminCopy.connect(data.addr, data.port, data.password);
-})
 .then(function (sess) {
 	session = sess;
 	var funcName = process.argv[2];
