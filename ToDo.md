@@ -15,7 +15,7 @@ ToDo:
 - [x] Implement JSON with comments
 - [x] Port bencode
 - [x] Add code to communicate with cjdns admin
-- [ ] Apply changes without restart using cjdns admin
+- [x] Apply changes without restart using cjdns admin
 - [x] Admin commands
 - [x] Do a backup before saving cjdroute.conf
 - [x] Check for the existence of cjdmaid.conf before installing

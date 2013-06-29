@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* jshint camelcase: false */
+
 "use strict";
 
 var program = require("commander");
@@ -25,6 +27,7 @@ var when = require("when");
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
 var addingdata = require(__dirname + "/../lib/addingdata");
+var admin = require(__dirname + "/../lib/admin");
 var license = require(__dirname + "/../lib/license");
 
 
@@ -35,7 +38,8 @@ program
 	.option("-e, --email <email>", "Node author's email")
 	.option("-l, --location <text>", "Node location")
 	.option("-4, --ipv4 <ip>", "Node ipv4")
-	.option("-6, --ipv6 <ip>", "Node ipv6");
+	.option("-6, --ipv6 <ip>", "Node ipv6")
+	.option("-b, --bare", "Just save to config, don't send via admin.");
 
 program.on("--help", function () {
 	console.log("  Examples:");
@@ -53,7 +57,6 @@ program.on("--help", function () {
 program.parse(process.argv);
 
 
-
 var adata = new addingdata({
 	addingKeys: [
 		"password",
@@ -65,6 +68,8 @@ var adata = new addingdata({
 	]
 });
 
+var adminCopy = new admin();
+var session;
 
 adata.setDataField("password", program.passwd);
 adata.setDataField("name", program.name);
@@ -104,12 +109,33 @@ when(
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })
 .then(function () {
-	console.log("Pass saved!");
+	console.log("Saved to config.");
+	if (program.bare) {
+		return;
+	}
 
+	return adminCopy.connectWithAdminInfo();
+})
+.then(function (sess) {
+	if (program.bare) {
+		return;
+	}
+
+	session = sess;
+	return session.AuthorizedPasswords_add(adata.addingData.password);
+})
+.then(function () {
+	if (program.bare) {
+		return;
+	}
+
+	console.log("Sended to cjdns.");
+	return session.disconnect();
+})
+.then(function () {
 	console.log("");
 	console.log("Here's data that you need send to your friend: ");
 	return config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf"]);
-
 })
 .then(function (docs) {
 	var cjdmaidConfJson = docs[0];

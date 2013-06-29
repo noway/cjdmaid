@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* jshint camelcase: false */
+
 "use strict";
 
 var program = require("commander");
@@ -25,19 +27,19 @@ var when = require("when");
 var util = require(__dirname + "/../lib/util");
 var config = require(__dirname + "/../lib/config");
 var addingdata = require(__dirname + "/../lib/addingdata");
+var admin = require(__dirname + "/../lib/admin");
 var license = require(__dirname + "/../lib/license");
 
 
 program
-	.option("-c, --configpath <path>", "Config json path where write data",
-		util.configpath, ["router", "ipTunnel", "allowedConnections"])
 	.option("-f, --force", "Immediately continue")
 	.option("-P, --publicKey <text>", "Node publicKey")
 	.option("-4, --ipv4 <ip>", "Node ipv4")
 	.option("-6, --ipv6 <ip>", "Node ipv6")
 	.option("-n, --name <text>", "Node author's name")
 	.option("-e, --email <email>", "Node author's email")
-	.option("-l, --location <text>", "Node location");
+	.option("-l, --location <text>", "Node location")
+	.option("-b, --bare", "Just save to config, don't send via admin.");
 
 program.on("--help", function () {
 	console.log("  Examples:");
@@ -56,39 +58,39 @@ program.on("--help", function () {
 
 program.parse(process.argv);
 
+var configpath = [
+	"router", "ipTunnel", "allowedConnections"
+];
 
 var adata = new addingdata({
 	addingKeys: [
 		"publicKey",
-		"ipv4",
-		"ipv6",
+		"ip4Address",
+		"ip6Address",
 		"name",
 		"email",
 		"location"
 	]
 });
 
+var adminCopy = new admin();
+var session;
+
 
 adata.setDataField("publicKey", program.publicKey);
-adata.setDataField("ipv4", program.ipv4);
-adata.setDataField("ipv6", program.ipv6);
+adata.setDataField("ip4Address", program.ipv4);
+adata.setDataField("ip6Address", program.ipv6);
 adata.setDataField("name", program.name);
 adata.setDataField("email", program.email);
 adata.setDataField("location", program.location);
 
 
+
 when(
-	util.isConfigPathPossible(program.configpath, "array")
+	adata.promptMissingFields()
+
 )
-.then(function (ok) {
-	if (!ok) {
-		var err = new Error("Impossible --configpath");
-		return util.panic(err);
-	}
-
-	return adata.promptMissingFields();
-
-}).then(function () {
+.then(function () {
 
 	if (program.force) {
 		return when.resolve();
@@ -100,7 +102,6 @@ when(
 .yield(
 	config.readCustomConf("cjdrouteConf")
 )
-
 .then(function (doc) {
 	var pushObject = util.cloneObject(adata.addingData);
 
@@ -109,9 +110,9 @@ when(
 
 
 	var isPossible =
-		util.isPathPossible(program.configpath, docIter, "array");
+		util.isPathPossible(configpath, docIter, "array");
 	if (!isPossible) {
-		var err = new Error("Impossible --configpath");
+		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
 	}
 	docIter = isPossible.pointer;
@@ -123,8 +124,35 @@ when(
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })
 .then(function () {
-	console.log("Connection saved!");
+	console.log("Saved to config!");
 
+	if (program.bare) {
+		return;
+	}
+
+	return adminCopy.connectWithAdminInfo();
+})
+.then(function (sess) {
+	if (program.bare) {
+		return;
+	}
+
+	session = sess;
+	return session.IpTunnel_allowConnection(
+		adata.addingData.publicKey,
+		adata.addingData.ipv4,
+		adata.addingData.ipv6
+	);
+})
+.then(function () {
+	if (program.bare) {
+		return;
+	}
+
+	console.log("Sended to cjdns.");
+	return session.disconnect();
+})
+.then(function () {
 	return process.stdin.destroy();
 })
 .otherwise(function (err) {
