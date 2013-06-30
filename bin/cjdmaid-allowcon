@@ -49,8 +49,6 @@ program.on("--help", function () {
 	console.log("    $ cjdmaid-allowcon " +
 		"-n someone -e someone@domain.org -l 'Russia, Moscow'");
 	console.log("    $ cjdmaid-allowcon " +
-		"--configpath router.ipTunnel.allowedConnections");
-	console.log("    $ cjdmaid-allowcon " +
 		"--publicKey SfmsdfJQdfJDFnqExamplEnASFnfdisQm");
 	console.log("");
 	license();

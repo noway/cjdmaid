@@ -41,8 +41,6 @@ program.on("--help", function () {
 	console.log("");
 	console.log("    $ cjdmaid-outcon");
 	console.log("    $ cjdmaid-outcon " +
-		"--configpath router.ipTunnel.outgoingConnections");
-	console.log("    $ cjdmaid-outcon " +
 		"--publicKey QmdsfOThiIsExampleSfmOIgnSGnxNs");
 	console.log("");
 	license();
