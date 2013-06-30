@@ -33,4 +33,4 @@ ToDo:
 - [ ] Port "cjdcmd host
 - [ ] Port "cjdcmd hostname
 - [ ] Rename to cjdns-maid or cjd-maid or something.
-- [ ] Add option --index to cjdmaid-addpass
+- [x] Add option --index to cjdmaid-addpass

@@ -32,6 +32,7 @@ var license = require(__dirname + "/../lib/license");
 
 
 program
+	.option("-I, --index <number>", "Interface index", parseInt, 0)
 	.option("-f, --force", "Immediately continue")
 	.option("-p, --passwd <text>", "Node password")
 	.option("-n, --name <text>", "Node author's name")
@@ -141,8 +142,19 @@ when(
 	var cjdmaidConfJson = docs[0];
 	var cjdrouteConfJson = docs[1];
 
+	if (!util.isDef(cjdmaidConfJson.ip)) {
+		var err = new Error("\"ip\" field not found in your cjdmaid.conf");
+		return util.panic(err);
+	}
+
 	var resultObject = {};
-	resultObject[cjdmaidConfJson.address] = {
+
+	var port = cjdrouteConfJson.interfaces.UDPInterface[program.index].bind;
+	port = port.split(":")[1];
+
+	var address = cjdmaidConfJson.ip + ":" + port;
+
+	resultObject[address] = {
 		"password": adata.addingData.password,
 		"publicKey": cjdrouteConfJson.publicKey,
 		"ipv6": cjdrouteConfJson.ipv6
@@ -150,7 +162,7 @@ when(
 
 	["name", "email", "location"].forEach(function (key) {
 		if (cjdmaidConfJson[key]) {
-			resultObject[cjdmaidConfJson.address][key] = cjdmaidConfJson[key];
+			resultObject[address][key] = cjdmaidConfJson[key];
 		}
 	});
 

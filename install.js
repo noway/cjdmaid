@@ -31,7 +31,7 @@ var cjdmaidConf = {
 	"name": "Optional: Your nickname",
 	"email": "Optional: Your email",
 	"location": "Optional: Your location",
-	"address": "Optional: Enter your node address in format ip:port"
+	"ip": "Optional: Enter your node external ip adress"
 };
 
 when(
