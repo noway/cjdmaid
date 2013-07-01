@@ -34,3 +34,5 @@ ToDo:
 - [ ] Port "cjdcmd hostname
 - [ ] Rename to cjdns-maid or cjd-maid or something.
 - [x] Add option --index to cjdmaid-addpass
+- [ ] More advanced auto backup.
+- [ ] fix empty keys is json-comments-js
