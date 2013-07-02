@@ -24,7 +24,7 @@
 var program = require("commander");
 var when = require("when");
 
-var delay = require("when/delay");
+var timeout = require("when/timeout");
 var license = require(__dirname + "/../lib/license");
 var config = require(__dirname + "/../lib/config");
 var util = require(__dirname + "/../lib/util");
@@ -72,8 +72,8 @@ when(
 
 var nodes = {};
 
-function findNodes () {
-	return when(
+function findNodes() {
+	when(
 		getNewNodes(0, [])
 	)
 	.then(function (newNodes) {
@@ -82,9 +82,21 @@ function findNodes () {
 		}
 		console.log(newNodes.length + " new nodes found");
 		console.log("Waiting " + program.secs + " seconds.");
-		return delay(program.secs * 1000, programExit.promise);
+		return timeout(program.secs * 1000, programExit.promise);
 	})
-	.then(findNodes)
+	.otherwise(function (err) {
+		if (!err) {
+			return when.reject(err);
+		}
+
+		if (err.message.substr(0, "timed out".length) === "timed out") {
+			return;
+		}
+		return when.reject(err);
+	})
+	.then(function () {
+		findNodes();
+	})
 	.otherwise(function (err) {
 		if (err) {
 			return util.panic(err);
@@ -92,11 +104,16 @@ function findNodes () {
 	});
 }
 
-function getNewNodes (index, newNodes) {
+function getNewNodes(index, newNodes) {
 	return when(
 		session.NodeStore_dumpTable(index)
 	)
 	.then(function (data) {
+		if (!data.routingTable) {
+			console.log("got empty data");
+			console.log(data);
+			return [];
+		}
 		for (var i = 0; i < data.routingTable.length; i++) {
 			var r = data.routingTable[i];
 			if (!util.isDef(nodes[r.ip])) {
