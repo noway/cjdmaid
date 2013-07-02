@@ -31,12 +31,17 @@ var util = require(__dirname + "/../lib/util");
 var admin = require(__dirname + "/../lib/admin");
 
 
+program
+	.option("-s, --secs <number>", "Seconds to wait between fetches",
+		parseInt, 30);
+
 program.on("--help", function () {
 	license();
 });
 
 var adminCopy = new admin();
 var session;
+var programExit = when.defer();
 
 program.parse(process.argv);
 
@@ -51,19 +56,18 @@ when(
 
 	findNodes();
 
-	var deferred = when.defer();
 	process.on("SIGINT", function () {
-		deferred.resolve();
+		programExit.reject();
 	});
-	return deferred.promise;
-})
-.then(function () {
-	return session.disconnect();
+	return programExit.promise;
 })
 .otherwise(function (err) {
 	if (err) {
 		return util.panic(err);
 	}
+})
+.ensure(function () {
+	return session.disconnect();
 });
 
 var nodes = {};
@@ -77,7 +81,8 @@ function findNodes () {
 			console.log(newNodes[i]);
 		}
 		console.log(newNodes.length + " new nodes found");
-		return delay(30 * 1000);
+		console.log("Waiting " + program.secs + " seconds.");
+		return delay(program.secs * 1000, programExit.promise);
 	})
 	.then(findNodes)
 	.otherwise(function (err) {
