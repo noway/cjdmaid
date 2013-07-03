@@ -123,6 +123,22 @@ describe("util", function () {
 		});
 	});
 
+	describe("#deleteEmptyRows", function () {
+		it("should delete rows with value \"\"", function () {
+			var obj = {key: "", key2: "val"};
+			var res = {key2: "val"};
+
+			assert.deepEqual(util.deleteEmptyRows(obj), res);
+		});
+
+		it("should delete rows with value null", function () {
+			var obj = {key: null, key2: "val"};
+			var res = {key2: "val"};
+
+			assert.deepEqual(util.deleteEmptyRows(obj), res);
+		});
+	});
+
 	describe("#generatePassword()", function () {
 		it("length should be correct", function (done) {
 			var leng = 30;
