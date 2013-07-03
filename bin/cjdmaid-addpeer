@@ -37,13 +37,13 @@ program
 	.option("-I, --index <number>", "Interface index", parseInt, 0)
 	.option("-f, --force", "Immediately continue")
 	.option("-r, --rewrite", "Force peer rewrite")
-	.option("-a, --address <ip:port>", "Node address")
-	.option("-p, --passwd <text>", "Node password")
-	.option("-P, --publicKey <text>", "Node publicKey")
-	.option("-6, --ipv6 <ip>", "Node ipv6")
+	.option("-a, --address <ip:port>", "Node's address")
+	.option("-p, --passwd <text>", "Node's password")
+	.option("-P, --publicKey <text>", "Node's publicKey")
+	.option("-6, --ipv6 <ip>", "Node's ipv6")
 	.option("-n, --name <text>", "Node author's name")
 	.option("-e, --email <email>", "Node author's email")
-	.option("-l, --location <text>", "Node location")
+	.option("-l, --location <text>", "Node's location")
 	.option("-b, --bare", "Just save to config, don't send via admin.");
 
 program.on("--help", function(){

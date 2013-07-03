@@ -33,12 +33,12 @@ var license = require(__dirname + "/../lib/license");
 
 program
 	.option("-f, --force", "Immediately continue")
-	.option("-P, --publicKey <text>", "Node publicKey")
-	.option("-4, --ipv4 <ip>", "Node ipv4")
-	.option("-6, --ipv6 <ip>", "Node ipv6")
+	.option("-P, --publicKey <text>", "Node's publicKey")
+	.option("-4, --ipv4 <ip>", "Node's ipv4")
+	.option("-6, --ipv6 <ip>", "Node's ipv6")
 	.option("-n, --name <text>", "Node author's name")
 	.option("-e, --email <email>", "Node author's email")
-	.option("-l, --location <text>", "Node location")
+	.option("-l, --location <text>", "Node's location")
 	.option("-b, --bare", "Just save to config, don't send via admin.");
 
 program.on("--help", function () {
