@@ -25,13 +25,13 @@ ToDo:
 - [x] Port findnodes
 - [ ] Port dynamicEndpoints.py
 - [ ] Port pingAll.py
-- [ ] Port "cjdcmd ping
-- [ ] Port "cjdcmd route
-- [ ] Port "cjdcmd traceroute
-- [ ] Port "cjdcmd ip
-- [ ] Port "cjdcmd peers
-- [ ] Port "cjdcmd host
-- [ ] Port "cjdcmd hostname
+- [ ] Port "cjdcmd ping"
+- [ ] Port "cjdcmd route"
+- [ ] Port "cjdcmd traceroute"
+- [ ] Port "cjdcmd ip"
+- [ ] Port "cjdcmd peers"
+- [ ] Port "cjdcmd host"
+- [ ] Port "cjdcmd hostname"
 - [ ] Rename to cjdns-maid or cjd-maid or something.
 - [x] Add option --index to cjdmaid-addpass
 - [ ] More advanced auto backup.
