@@ -100,6 +100,7 @@ when(
 )
 .then(function (doc) {
 	var pushObject = util.cloneObject(adata.addingData);
+	pushObject = util.deleteEmptyRows(pushObject);
 	var docIter = doc; // pointer
 
 	var isPossible = util.isPathPossible(configpath, docIter, "array");

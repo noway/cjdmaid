@@ -105,6 +105,8 @@ when(
 	}
 
 	var pushObject = util.cloneObject(adata.addingData);
+	pushObject = util.deleteEmptyRows(pushObject);
+
 	doc.authorizedPasswords.push(pushObject);
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })

@@ -143,6 +143,7 @@ when(
 .then(function (doc) {
 
 	var pushObject = util.cloneObject(adata.addingData);
+	pushObject = util.deleteEmptyRows(pushObject);
 	delete pushObject.address;
 
 	var docIter = doc; // pointer
