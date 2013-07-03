@@ -27,8 +27,22 @@ module.exports = function(grunt) {
 			options: {
 				"jshintrc": ".jshintrc"
 			},
-			all: ["bin/*", "lib/**/*.js", "test/**/*.js",
-				"install.js", "Gruntfile.js"],
+
+			bin: {
+				src: ["bin/*"]
+			},
+
+			lib: {
+				src: ["lib/**/*.js"]
+			},
+
+			test: {
+				src: ["test/**/*.js"]
+			},
+
+			other: {
+				src: ["install.js", "Gruntfile.js"]
+			}
 		},
 
 		simplemocha: {
@@ -37,7 +51,7 @@ module.exports = function(grunt) {
 				timeout: 3000,
 				ignoreLeaks: false,
 				ui: "bdd",
-				reporter: "spec"
+				reporter: grunt.option("no-color") ? "tap" : "spec"
 			},
 
 			all: {
@@ -47,7 +61,6 @@ module.exports = function(grunt) {
 	});
 
 	// Load the plugin that provides the "uglify" task.
-	grunt.loadNpmTasks("grunt-contrib-uglify");
 	grunt.loadNpmTasks("grunt-contrib-jshint");
 	grunt.loadNpmTasks("grunt-simple-mocha");
 
