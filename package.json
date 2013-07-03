@@ -1,6 +1,6 @@
 {
 	"name": "cjdmaid",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"author": "noway421 <noway@2ch.hk>",
 	"description": "Cjdns peers manager",
 
@@ -27,7 +27,8 @@
 		"cjdmaid-outcon": "./bin/cjdmaid-outcon",
 		"cjdmaid-admin": "./bin/cjdmaid-admin",
 		"cjdmaid-dumptable": "./bin/cjdmaid-dumptable",
-		"cjdmaid-findnodes": "./bin/cjdmaid-findnodes"
+		"cjdmaid-findnodes": "./bin/cjdmaid-findnodes",
+		"cjdmaid-ping": "./bin/cjdmaid-ping"
 	},
 
 	"config": {
