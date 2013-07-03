@@ -123,7 +123,7 @@ describe("util", function () {
 		});
 	});
 
-	describe("#deleteEmptyRows", function () {
+	describe("#deleteEmptyRows()", function () {
 		it("should delete rows with value \"\"", function () {
 			var obj = {key: "", key2: "val"};
 			var res = {key2: "val"};
