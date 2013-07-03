@@ -1,0 +1,189 @@
+#!/usr/bin/env node
+
+/**
+ * This file is part of Cjdmaid.
+ *
+ * Cjdmaid program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* jshint camelcase: false */
+
+"use strict";
+
+var when    = require("when");
+var program = require("commander");
+var timeout = require("when/timeout");
+
+var util    = require(__dirname + "/../lib/util");
+var admin   = require(__dirname + "/../lib/admin");
+var config  = require(__dirname + "/../lib/config");
+var license = require(__dirname + "/../lib/license");
+
+program
+	.option("-p, --path <string>", "Ip to ping")
+	.option("-t, --timeout <milliseconds>", "Ping timeout", parseInt, 2500)
+	.option("-i, --interval <milliseconds>", "Interval between pings",
+		parseInt, 1000)
+	.option("-c, --count <number>", "Times to ping", parseInt, 0);
+
+
+program.on("--help", function () {
+	license();
+});
+
+var adminCopy = new admin();
+var session;
+var programExit = when.defer();
+
+
+// ping vars
+
+var failed = 0;
+var success = 0;
+var sent = 0;
+
+var cTime = 0;
+var tTime = 0;
+var tTime2 = 0;
+var tMin = 0;
+var tMax = 0;
+var version;
+
+program.parse(process.argv);
+
+when(
+	config.readJson(util.expanduser("~/.cjdnsadmin"))
+)
+.then(function (data) {
+	return adminCopy.connect(data.addr, data.port, data.password);
+})
+.then(function (sess) {
+	session = sess;
+
+	pingNode(1);
+
+	process.on("SIGINT", function () {
+		programExit.reject();
+	});
+	return programExit.promise;
+})
+.otherwise(function (err) {
+	if (err) {
+		return util.panic(err);
+	}
+})
+.ensure(function () {
+	var tAvg = 0;
+	var tDev = 0;
+
+	if (success > 0) {
+		tAvg = tTime / success;
+	}
+	tTime2 = tTime2 / success;
+
+	if (success > 0) {
+		tDev = Math.sqrt(tTime2 - (tAvg * tAvg));
+	}
+	var percent = (failed / sent) * 100;
+
+	console.log("\n---", program.path, "ping statistics ---");
+	console.log(
+		sent + " packets transmitted, " +
+		success + " received, " +
+		Math.round(percent) +  "% packet loss, " +
+		"time " + tTime+  " ms\n");
+	console.log("rtt min/avg/max/mdev = " + tMin.toFixed(3) +
+		"/" + tAvg.toFixed(3) +
+		"/" + tMax.toFixed(3) +
+		"/" + tDev.toFixed(3) + " ms\n");
+
+	if (version) {
+		console.log("Target is using cjdns version " + version + "\n");
+	}
+	return session.disconnect();
+})
+.otherwise(function (err) {
+	if (err) {
+		return util.panic(err);
+	}
+});
+
+function pingNode(i) {
+	var start = Date.now();
+	when(
+		session.RouterModule_pingNode(program.path, program.timeout)
+	)
+	.then(function (data) {
+		//console.log(data);
+
+		sent++;
+		if (!util.isDef(data.error)) {
+			if (data.result === "timeout") {
+				console.log("Timeout from " + program.path +
+					" after " + data.ms + "ms");
+				failed++;
+			}
+			else {
+				console.log("Reply from " + program.path + " req=" +
+					(failed + success) + " time=" + data.ms + "ms");
+
+				cTime = data.ms;
+				tTime += cTime;
+				tTime2 += cTime * cTime;
+				if (tMin === 0) {
+					tMin = cTime;
+				}
+				if (cTime > tMax) {
+					tMax = cTime;
+				}
+				if (cTime < tMin) {
+					tMin = cTime;
+				}
+
+				if (!version) {
+					version = data.version;
+				}
+
+				success++;
+			}
+		}
+		else {
+			failed++;
+		}
+		if (i !== program.count) {
+			var now = Date.now();
+			return timeout((start - now) + program.interval,
+				programExit.promise);
+		}
+	})
+	.otherwise(function (err) {
+		if (!err) {
+			return when.reject(err);
+		}
+
+		if (err.message.substr(0, "timed out".length) === "timed out") {
+			return;
+		}
+
+		return when.reject(err);
+	})
+	.then(function () {
+		pingNode(i + 1);
+	})
+	.otherwise(function (err) {
+		if (err) {
+			return util.panic(err);
+		}
+	});
+}
