@@ -94,6 +94,7 @@ when(
 			console.log("WARNING! " + config.CJDMAID_CONFIG_PATH + " " +
 				"is not created! Here error: " + err + ". " +
 				"You need create it by yourself. ");
+			return when.reject(err);
 		}
 	});
 })
