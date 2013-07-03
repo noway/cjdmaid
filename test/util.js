@@ -34,54 +34,54 @@ describe("util", function () {
 	});
 
 	describe("#isDef()", function () {
-		it("defined vars", function () {
+		it("should be ok on defined vars", function () {
 			var variable = 1;
 			assert.ok(util.isDef(variable));
 		});
 
-		it("only declared var", function () {
+		it("shouldn't be ok on declared but not defined vars", function () {
 			var variable;
 			assert.ok(!util.isDef(variable));
 		});
 
-		it("undefined var", function () {
+		it("shouldn't be ok on undefined vars", function () {
 			var variable = [];
 			assert.ok(!util.isDef(variable[999]));
 		});
 	});
 
 	describe("#isInt()", function () {
-		it("regular numbers", function () {
+		it("should be ok on regular numbers", function () {
 			assert.ok(util.isInt(1));
 			assert.ok(util.isInt(2));
 			assert.ok(util.isInt(255));
 			assert.ok(util.isInt(256));
 		});
 
-		it("big numbers", function () {
+		it("should be ok on big numbers", function () {
 			assert.ok(util.isInt(3e9)); // 3 billion
 		});
 
-		it("negative numbers", function () {
+		it("should be ok on negative numbers", function () {
 			assert.ok(util.isInt(-1));
 			assert.ok(util.isInt(-3e9)); // -3 billion
 		});
 
-		it("float is not int", function () {
+		it("shouldn't be ok on float", function () {
 			assert.ok(!util.isInt(1.1));
 			assert.ok(!util.isInt(-1.1));
 			assert.ok(!util.isInt(3e-9)); // 3 * 10^-9
 			assert.ok(!util.isInt(-3e-9)); // -3 * 10^-9
 		});
 
-		it("String is not int", function () {
+		it("shouldn't be ok on strings", function () {
 			assert.ok(!util.isInt(""));
 			assert.ok(!util.isInt("1"));
 			assert.ok(!util.isInt("-1"));
 			assert.ok(!util.isInt("255"));
 		});
 
-		it("Conversions", function () {
+		it("should be ok on numbers after conversions", function () {
 			assert.ok(util.isInt(+"1"));
 			assert.ok(util.isInt(Number("1")));
 			assert.ok(util.isInt(parseInt("1", 10)));
@@ -89,21 +89,21 @@ describe("util", function () {
 	});
 
 	describe("#isObject()", function () {
-		it("{} should be object", function () {
+		it("should be ok on {}", function () {
 			assert.ok(util.isObject({}));
 			assert.ok(util.isObject({k: "val"}));
 		});
-		it("[] shouldn't be object", function () {
+		it("shouldn't be ok on []", function () {
 			assert.ok(!util.isObject([]));
 		});
 	});
 
 	describe("#isArray()", function () {
-		it("[] should be array", function () {
+		it("should be ok on []", function () {
 			assert.ok(util.isArray([]));
 		});
 
-		it("{} shouldn't be array", function () {
+		it("shouldn't be ok on {}", function () {
 			assert.ok(!util.isArray({}));
 		});
 	});
