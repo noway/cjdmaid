@@ -17,15 +17,15 @@
 
 "use strict";
 
-var childProcess = require("child_process");
-var commfn = require(__dirname + "/lib/commander/function");
-var when = require("when");
-var nodefn = require("when/node/function");
-var fs = require("fs");
-
-var config = require(__dirname + "/lib/config");
-var util = require(__dirname + "/lib/util");
+var fs           = require("fs");
+var when         = require("when");
+var nodefn       = require("when/node/function");
 var JSONcomments = require("json-comments-js");
+var childProcess = require("child_process");
+
+var util   = require(__dirname + "/lib/util");
+var config = require(__dirname + "/lib/config");
+var commfn = require(__dirname + "/lib/commander/function");
 
 
 var cjdmaidConf = {

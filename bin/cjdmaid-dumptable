@@ -21,12 +21,13 @@
 
 "use strict";
 
+var when    = require("when");
 var program = require("commander");
-var when = require("when");
+
+var util    = require(__dirname + "/../lib/util");
+var admin   = require(__dirname + "/../lib/admin");
+var config  = require(__dirname + "/../lib/config");
 var license = require(__dirname + "/../lib/license");
-var config = require(__dirname + "/../lib/config");
-var util = require(__dirname + "/../lib/util");
-var admin = require(__dirname + "/../lib/admin");
 
 
 program.on("--help", function () {

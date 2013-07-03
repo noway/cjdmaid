@@ -17,9 +17,10 @@
 
 "use strict";
 
-var assert = require("assert");
-var when = require("when");
+var when    = require("when");
+var assert  = require("assert");
 var timeout = require("when/timeout");
+
 var util = require(__dirname + "/../lib/util");
 
 /* global describe, it */
