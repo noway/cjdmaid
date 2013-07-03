@@ -162,11 +162,13 @@ when(
 		"ipv6": cjdrouteConfJson.ipv6
 	};
 
-	["name", "email", "location"].forEach(function (key) {
-		if (cjdmaidConfJson[key]) {
-			resultObject[address][key] = cjdmaidConfJson[key];
+	for (var i in cjdmaidConfJson.ownNodeData) {
+		if (cjdmaidConfJson.ownNodeData.hasOwnProperty(i)) {
+			if (cjdmaidConfJson.ownNodeData[i]) {
+				resultObject[address][i] = cjdmaidConfJson.ownNodeData[i];
+			}
 		}
-	});
+	}
 
 	var resultJson = JSON.stringify(resultObject, null, 4);
 	resultJson = resultJson.replace(/^\s{4}/mg, "");
