@@ -25,7 +25,7 @@ ToDo:
 - [x] Port findnodes
 - [ ] Port dynamicEndpoints.py
 - [ ] Port pingAll.py
-- [ ] Port "cjdcmd ping"
+- [x] Port "cjdcmd ping"
 - [ ] Port "cjdcmd route"
 - [ ] Port "cjdcmd traceroute"
 - [ ] Port "cjdcmd ip"
@@ -36,3 +36,4 @@ ToDo:
 - [x] Add option --index to cjdmaid-addpass
 - [ ] More advanced auto backup.
 - [ ] fix empty keys is json-comments-js
+- [ ] config should be in ~/.config/cjdmaid.com

@@ -33,7 +33,8 @@ program
 	.command("allowcon", "Add connection to allowedConnections in config.")
 	.command("admin", "Execute command in cjdns admin.")
 	.command("dumptable", "Dump whole routing table.")
-	.command("findnodes", "Prints new nodes in routing table.");
+	.command("findnodes", "Prints new nodes in routing table.")
+	.command("ping", "Ping node.");
 
 if (process.argv.length < 3) {
 	var ascii = fs.readFileSync(__dirname + "/../maid.txt", "utf-8");

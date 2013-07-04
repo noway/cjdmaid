@@ -85,6 +85,7 @@ then
         admin                  Execute command in cjdns admin.
         dumptable              Dump whole routing table.
         findnodes              Prints new nodes in routing table.
+        ping                   Ping node.
         help [cmd]             display help for [cmd]
 
     Options:
