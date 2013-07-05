@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 			},
 
 			test: {
-				options: grunt.util._.merge({
+				options: {
 					globals: {
 						describe: false,
 						it: false,
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
 						beforeEach: false,
 						afterEach: false
 					}
-				}, grunt.file.readJSON(".jshintrc")),
+				},
 				src: ["test/**/*.js"]
 			},
 
