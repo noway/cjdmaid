@@ -37,3 +37,4 @@ ToDo:
 - [ ] More advanced auto backup.
 - [ ] fix empty keys is json-comments-js
 - [ ] config should be in ~/.config/cjdmaid.com
+- [ ] write tests for lib/config.js
