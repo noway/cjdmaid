@@ -138,7 +138,7 @@ when(
 .then(function () {
 	console.log("");
 	console.log("Here's data that you need send to your friend: ");
-	return config.readSeveralConfs(["cjdmaidConf", "cjdrouteConf"]);
+	return config.readSeveralConfs("cjdmaidConf", "cjdrouteConf");
 })
 .then(function (docs) {
 	var cjdmaidConfJson = docs[0];
