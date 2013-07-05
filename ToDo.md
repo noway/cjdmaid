@@ -36,5 +36,5 @@ ToDo:
 - [x] Add option --index to cjdmaid-addpass
 - [ ] More advanced auto backup.
 - [ ] fix empty keys is json-comments-js
-- [ ] config should be in ~/.config/cjdmaid.com
+- [ ] config should be in ~/.config/cjdmaid.conf
 - [ ] write tests for lib/config.js
