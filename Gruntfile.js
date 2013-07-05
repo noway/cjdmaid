@@ -24,9 +24,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON("package.json"),
 
 		jshint: {
-			options: {
-				"jshintrc": ".jshintrc"
-			},
+			options: grunt.file.readJSON(".jshintrc"),
 
 			bin: {
 				src: ["bin/*"]
@@ -37,7 +35,7 @@ module.exports = function(grunt) {
 			},
 
 			test: {
-				options: {
+				options: grunt.util._.merge({
 					globals: {
 						describe: false,
 						it: false,
@@ -46,7 +44,7 @@ module.exports = function(grunt) {
 						beforeEach: false,
 						afterEach: false
 					}
-				},
+				}, grunt.file.readJSON(".jshintrc")),
 				src: ["test/**/*.js"]
 			},
 
