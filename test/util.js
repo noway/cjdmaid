@@ -23,8 +23,6 @@ var timeout = require("when/timeout");
 
 var util = require(__dirname + "/../lib/util");
 
-/* global describe, it */
-
 describe("util", function () {
 	describe("#expanduser()", function () {
 		it("should replace \"~\" to userdir", function () {
