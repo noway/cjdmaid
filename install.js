@@ -30,6 +30,7 @@ var commfn = require(__dirname + "/lib/commander/function");
 
 var cjdmaidConf = {
 	"cjdrouteConf": "Fill this: Path to your cjdroute.conf",
+	"cjdnsadminConf": "~/.cjdnsadmin",
 	"ownNodeData": {
 		"name": "Optional: Your nickname",
 		"email": "Optional: Your email",
