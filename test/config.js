@@ -36,4 +36,70 @@ describe("config", function () {
 			});
 		});
 	});
+
+	describe("#readCjdmaidConf()", function () {
+		it("should return something", function (done) {
+			when(
+				config.readCjdmaidConf()
+			)
+			.then(function (data) {
+				assert.ok(data);
+				done();
+			});
+		});
+	});
+
+	describe("#readCustomConf()", function () {
+		it("cjdrouteConf should return something", function (done) {
+			when(
+				config.readCustomConf("cjdrouteConf")
+			)
+			.then(function (data) {
+				assert.ok(data);
+				done();
+			});
+		});
+
+		it("cjdmaidConf should be same as readCjdmaidConf()", function (done) {
+			var readCjdmaidConfResult;
+			var readCustomConfResult;
+
+			when(
+				config.readCjdmaidConf()
+			)
+			.then(function (data) {
+				readCjdmaidConfResult = data;
+				return config.readCustomConf("cjdmaidConf");
+			})
+			.then(function (data) {
+				readCustomConfResult = data;
+				assert.deepEqual(readCjdmaidConfResult, readCustomConfResult);
+				done();
+			});
+		});
+	});
+
+	describe("#readSeveralConfs()", function () {
+		it("cjdrouteConf, cjdmaidConf should be as analogs", function (done) {
+			var regularResults = [];
+
+			when(
+				config.readCustomConf("cjdmaidConf")
+			)
+			.then(function (data) {
+				regularResults.push(data);
+				return config.readCustomConf("cjdrouteConf");
+			})
+			.then(function (data) {
+				regularResults.push(data);
+				return config.readSeveralConfs("cjdmaidConf", "cjdrouteConf");
+			})
+			.then(function (data) {
+				assert.deepEqual(regularResults, data);
+				done();
+			});
+		});
+	});
+
+
 });
