@@ -79,8 +79,7 @@ when(
 		});
 	}
 
-	cjdmaidConf["/**/"] = "\n\t" +
-		config.CONFIGS_COMMENTS.cjdmaidConf + "\n\t";
+	cjdmaidConf["/**/"] = config.CONFIGS_COMMENTS.cjdmaidConf;
 
 	var writingText = JSONcomments.stringify(cjdmaidConf, null, "\t");
 
