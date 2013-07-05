@@ -1,4 +1,4 @@
-# cjdmaid - cjdns peers manager
+# cjdmaid - cjdns peers manager [![NPM version](https://badge.fury.io/js/cjdmaid.png)](http://badge.fury.io/js/cjdmaid)
                                      __,,_,,..,.
                                ..---\     /   /
                                \  \  \_,./.../
