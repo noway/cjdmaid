@@ -38,3 +38,4 @@ ToDo:
 - [ ] fix empty keys is json-comments-js
 - [ ] config should be in ~/.config/cjdmaid.conf
 - [ ] write tests for lib/config.js
+- [ ] config option for password length
