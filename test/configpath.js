@@ -22,44 +22,79 @@ var configpath = require(__dirname + "/../lib/configpath");
 
 describe("configpath", function () {
 	describe("#isPossible()", function () {
-		var doc, docIter, configpathCopy;
+		var path, doc, docIter, configpathCopy;
+		var result, pointer;
 
-		it("should return true if last type correct", function () {
+		it("should return positive value if last type correct", function () {
+			path = ["key", "key2"];
 			doc = { key: { key2: {} } };
 			docIter = doc;
-			assert.ok(configpath.isPossible(
-				["key", "key2"],
-				docIter,
-				"object"
-			));
+
+			assert.ok(configpath.isPossible(path, docIter, "object"));
 
 
+			path = ["key", "key2"];
 			doc = { key: { key2: [] } };
 			docIter = doc;
-			assert.ok(configpath.isPossible(
-				["key", "key2"],
-				docIter,
-				"array"
-			));
+
+			assert.ok(configpath.isPossible(path, docIter, "array"));
 		});
 
 		it("should return false if last type incorrect", function () {
+			path = ["key", "key2"];
 			doc = { key: { key2: [] } };
 			docIter = doc;
-			assert.ok(!configpath.isPossible(
-				["key", "key2"],
-				docIter,
-				"object"
-			));
+
+			assert.ok(!configpath.isPossible(path, docIter, "object"));
 
 
+			path = ["key", "key2"];
 			doc = { key: { key2: {} } };
 			docIter = doc;
-			assert.ok(!configpath.isPossible(
-				["key", "key2"],
-				docIter,
-				"array"
-			));
+
+			assert.ok(!configpath.isPossible(path, docIter, "array"));
+		});
+
+		it("should initialize undefined nodes", function () {
+			path = ["key", "key2", "key3"];
+			doc = { key: {} };
+			docIter = doc;
+			result = { key: { key2: { key3: {} } } };
+
+			configpath.isPossible(path, docIter, "object");
+			assert.deepEqual(doc, result);
+
+
+			path = ["key", "key2", "key3"];
+			doc = { key: {} };
+			docIter = doc;
+			result = { key: { key2: { key3: [] } } };
+
+			configpath.isPossible(path, docIter, "array");
+			assert.deepEqual(doc, result);
+		});
+
+		it("should return pointer to last node", function () {
+			path = ["key", "key2"];
+			doc = { key: { key2: {} } };
+			docIter = doc;
+			result = { key: { key2: { test: "val" } } };
+
+			pointer =
+				configpath.isPossible(path, docIter, "object").pointer;
+			pointer.test = "val";
+			assert.deepEqual(doc, result);
+
+
+			path = ["key", "key2"];
+			doc = { key: { key2: [] } };
+			docIter = doc;
+			result = { key: { key2: [1, 2, 3] } };
+
+			pointer =
+				configpath.isPossible(path, docIter, "array").pointer;
+			pointer.push(1, 2, 3);
+			assert.deepEqual(doc, result);
 		});
 	});
 });
