@@ -29,6 +29,7 @@ var admin      = require(__dirname + "/../lib/admin");
 var config     = require(__dirname + "/../lib/config");
 var license    = require(__dirname + "/../lib/license");
 var addingdata = require(__dirname + "/../lib/addingdata");
+var configpath = require(__dirname + "/../lib/configpath");
 
 
 program
@@ -103,7 +104,7 @@ when(
 	pushObject = util.deleteEmptyRows(pushObject);
 	var docIter = doc; // pointer
 
-	var isPossible = util.isPathPossible(configpath, docIter, "array");
+	var isPossible = configpath.isPossible(configpath, docIter, "array");
 	if (!isPossible) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
