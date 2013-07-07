@@ -81,8 +81,16 @@ adata.setDataField("ipv6", program.ipv6);
 
 
 when(
-	util.generatePassword(48)
+	config.readCustomConf("cjdmaidConf")
 )
+.then(function (data) {
+	if (!util.isDef(data.passwordLength)) {
+		var err = new Error("\"passwordLength\" field " +
+			"not found in your cjdmaid.conf");
+		return util.panic(err);
+	}
+	return util.generatePassword(data.passwordLength);
+})
 .then(function (password) {
 	if (!util.isDef(adata.addingData.password)) {
 		adata.setDataField("password", password);
