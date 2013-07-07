@@ -102,16 +102,14 @@ when(
 .then(function (doc) {
 	var pushObject = util.cloneObject(adata.addingData);
 	pushObject = util.deleteEmptyRows(pushObject);
-	var docIter = doc; // pointer
 
-	var isPossible = configpath.isPossible(configpath, docIter, Object);
-	if (!isPossible) {
+	var docIter = configpath.isPossible(configpath, doc, Array);
+	if (!docIter) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
 	}
 
-	docIter = isPossible.pointer;
-	docIter.push(pushObject);
+	docIter.pointer.push(pushObject);
 
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })

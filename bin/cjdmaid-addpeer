@@ -147,18 +147,16 @@ when(
 	pushObject = util.deleteEmptyRows(pushObject);
 	delete pushObject.address;
 
-	var docIter = doc; // pointer
-
-	var isPossible =
-		configpath.isPossible(configpath, docIter, Object);
-	if (!isPossible) {
+	var docIter =
+		configpath.isPossible(configpath, doc, Object);
+	if (!docIter) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
 	}
-	docIter = isPossible.pointer;
 
-	var isPeerDefined = util.isDef(docIter[adata.addingData.address]);
-	docIter[adata.addingData.address] = pushObject;
+	var isPeerDefined =
+		util.isDef(docIter.pointer[adata.addingData.address]);
+	docIter.pointer[adata.addingData.address] = pushObject;
 
 	if (!isPeerDefined) {
 		return savePeer(doc);

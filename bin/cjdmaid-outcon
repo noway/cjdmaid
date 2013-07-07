@@ -84,19 +84,16 @@ when(
 	config.readCustomConf("cjdrouteConf")
 )
 .then(function (doc) {
-
 	var pushObject = adata.addingData.publicKey;
-	var docIter = doc; // pointer
+	var docIter =
+		configpath.isPossible(configpath, doc, Array);
 
-	var isPossible =
-		configpath.isPossible(configpath, docIter, Array);
-	if (!isPossible) {
+	if (!docIter) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
 	}
-	docIter = isPossible.pointer;
 
-	docIter.push(pushObject);
+	docIter.pointer.push(pushObject);
 
 	return config.writeCustomConfSafe("cjdrouteConf", doc);
 })
