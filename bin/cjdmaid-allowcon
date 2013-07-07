@@ -104,7 +104,7 @@ when(
 	pushObject = util.deleteEmptyRows(pushObject);
 	var docIter = doc; // pointer
 
-	var isPossible = configpath.isPossible(configpath, docIter, "array");
+	var isPossible = configpath.isPossible(configpath, docIter, Object);
 	if (!isPossible) {
 		var err = new Error("Config has wrong structure.");
 		return util.panic(err);
