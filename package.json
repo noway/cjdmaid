@@ -19,6 +19,7 @@
 	"scripts": {
 		"install": "node install.js"
 	},
+
 	"bin" : {
 		"cjdmaid": "./bin/cjdmaid",
 		"cjdmaid-addpass": "./bin/cjdmaid-addpass",
