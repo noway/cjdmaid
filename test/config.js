@@ -102,4 +102,19 @@ describe("config", function () {
 	});
 
 
+	describe("#writeJson()", function () {
+		it("should write json correct", function (done) {
+			var exampleJson = {"key": "val", "arr": [1, 2, 3]};
+			when(
+				config.writeJson(__dirname + "/writing.json", exampleJson)
+			)
+			.then(function () {
+				return config.readJson(__dirname + "/writing.json");
+			})
+			.then(function (data) {
+				assert.deepEqual(data, exampleJson);
+				done();
+			});
+		});
+	});
 });
