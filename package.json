@@ -37,7 +37,7 @@
 	},
 
 	"dependencies": {
-		"commander": "~1.1.1",
+		"commander": "~1.3.0",
 		"when": "~2.1.0",
 		"json-comments-js": "~0.0.3",
 		"bencode": "~0.4.3"
